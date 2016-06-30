@@ -1,0 +1,101 @@
+**** Internship in the CBIB, Bordeaux, 2016.
+
+*** Use main.py to interact gently with the program. ***
+
+LINUX:
+In Emacs:
+- open main.py
+- C-c C-p to open interpreter
+- in the code, C-c C-l to evaluate the file
+- write down "main.py"
+- in the interpreter, write down "main()"
+
+In the terminal:
+- write down "python"
+- write down "from main import main"
+- write down "main()"
+- to exit Python, write down "exit()"
+
+WINDOWS:
+In Pyzo/Anaconda:
+- open file "main.py"
+- write down "main()" in the interpreter
+
+-----------------------------------------------------------------------------------------------------------------
+
+This program uses a Naive Bayes Classifier to infer correlations between metadata and the phylogenetic trees in samples. The classifier classifies a sample/patient in a classe corresponding to a certain list of values for a certain set of metadata.
+
+A sample/patient is defined with a features vector, containing the numeric values (boolean values are 0 and 1) corresponding to every metadatum collected, and a phylogenetic vector, containing for each node n of the phylogenetic tree a list of read numbers r such as n matches the read r. 
+
+1) User firstly chooses the metadatum to cluster the samples.
+2) User can choose between these two options:
+    a) User may select the nodes of interest, and the algorithm focuses exclusively on these nodes to classify the samples.
+    b) User may choose two integers s and n. The algorithm then launches s random sub-samplings so as it returns the set of n nodes which classifies the best (according to Youden's J statistic, see below) the set of samples. 
+
+A set of samples is randomly selected to train the algorithm (it may add a probability if there is no sample of a given value of metadatum to avoid the problem of zero-probabilities). The algorithm computes for each node of interest the expectation and standard deviation of the number of match in every sample to this node. These samples will be affected to the different class according to their metadatum values.
+
+Then for every sample s that does not belong to the training set, the algorithm will assign the most probable class to s (classic calculus with Bayesian hypotheses).
+
+Relevancy of the assignment will be measured with Youden's index, or Youden's J statistic (in later versions, it may handle a slightly modified version of F-measure and/or ROC space interpretation) for a given class C:
+
+J(c) = TP(c)/(TP(c) + FN(c)) + TN(c)/(TN(c) + FP(c)) - 1
+where TP(c) are True Positive for class C (the number of samples assigned to the correct class: C matches their metadata values),
+FN(c) are False Negative (the number of samples not assigned to C and matching C),
+FP(c) are False Positive (the number of samples assigned to C and not matching C),
+and TN(c) are True Negative (the number of samples not assigned to C and not matching C).
+
+The best classification is the classification such as, for all class C, J(c) is the closest to 1 (that is, such as, if n is the sum of J(C) for all s classes C, s - n is minimum and non-negative).
+
+-----------------------------------------------------------------------------------------------------------------
+
+Details about the files:
+**** actions.py ****
+
+**** classifier.py ****
+
+**** featuresVector.py ****
+
+**** /files
+Stores written files using writeOnFiles functions.
+
+**** main.py ****
+Interface with the user.
+
+**** /meta ****
+Contains raw material.
+
+**** misc.py ****
+Contains useful macros.
+
+**** parsingFasta.py ****
+Parses FASTA file stored at /meta.
+
+**** parsingInfo.py ****
+Parses data table stored at /meta.
+
+**** parsingMatch.py ****
+Parses MATCH files stored at /meta/match.
+
+**** plottingValues.py ****
+Draws pies.
+
+**** randomSampling.py ****
+Chooses randomly a certain number of elements in a set.
+
+**** training.py ****
+Training part for the classifier.
+
+**** writeOnFiles ****
+Helps saving results in files.
+
+**** youden.py ****
+Computation of Youden's J statistic.
+
+
+-----------------------------------------------------------------------------------------------------------------
+
+Comments:
+
+*** Before starting TAXOBINARYCLASSIFIER ***
+- Create a folder entitled "files" to store your results.
+
