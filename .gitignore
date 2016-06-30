@@ -5,6 +5,8 @@ README~
 *.py~
 *.txt~
 TODO.txt
+*.csv
+*.tree
 *.csv~
 *.tree~
 *.taxotree
