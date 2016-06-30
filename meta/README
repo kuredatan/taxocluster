@@ -1,0 +1,6 @@
+- Info.csv: metadata for the samples
+- GGdb2015.tree: the whole taxonomic tree from GreenGenes
+- FASTA file: identify the sequences of the taxonomic tree
+- match folder: contains the reads and the nodes matching these reads for each patient (one patient = one file)
+
+/!\ Some nodes are in the tree but not in the data matrix!
