@@ -1,10 +1,10 @@
 #The entire taxonomy tree
+#Slightly modified version of TaxoTree, since sample Hit Lists are not useful anymore!
 
 #A node (assignment of a read by Tango) in such a tree contains:
 #@name the name of the species
 #@rank its rank (k:Kingdom, p: Phylum, c: Class, o: Order, f: Family, g: Genus, s: Species) (Domain can be added easily if needed)
 #@ident an identifier for the node, unique in the tree
-#@sampleHitList a list that contains (name of sample,number of assignments to this node in this sample) pairs
 #@lineage the list of ancestors ((name,rank) list) of the node (from the father to the root)
 #@children the list of children (TaxoTree) of the node ordered by growing @ident
 #@paths keeps memory of paths to every node/leaf of the tree (to compute more easily distances between nodes of a TaxoTree)
@@ -19,11 +19,10 @@ from misc import containsSpecie,mem,selectPath,compare
 class TaxoTree(object):
     #
     #
-    def __init__(self,name="Root",rank="R",ident=0,sampleHitList=None,lineage=None,children=None,paths=None):
+    def __init__(self,name="Root",rank="R",ident=0,lineage=None,children=None,paths=None):
         self.name = name
         self.rank = rank
         self.ident = ident
-        self.sampleHitList = sampleHitList or []
         self.lineage = lineage or []
         self.children = children or []
         self.paths = paths or []
