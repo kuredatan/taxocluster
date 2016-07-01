@@ -1,11 +1,16 @@
 import sys as s
 
 from parsingInfo import parseInfo
+from parsingTree import parseTree
+from taxoTree import TaxoTree
 from actions import userNodeSelectionAct,randomSubSamplingAct,parseList
 from featuresVector import featuresCreate
 from misc import getSampleIDList
 
 def main():
+    tTree = raw_input("Write down the .tree file name of the taxonomic tree in the folder \"meta\" [ without the extension .tree ]\n")
+    if (tTree == ""):
+        tTree = "GGdb2015"
     iMatrix = raw_input("Write down the CSV file name of the data matrix in the folder \"meta\" [ without the extension .csv ]\n")
     if (iMatrix == ""):
         iMatrix = "Info"
@@ -22,7 +27,15 @@ def main():
     except IOError:
         print "\nERROR: Maybe the filename",iMatrix,".csv does not exist in \"meta\" folder.\n"
         s.exit(0)
+    print "..."
+    try:
+        paths,n,nodesList = parseTree(tTree)
+    except IOError:
+        print "\nERROR: Maybe the filename",tTree,".tree does not exist in \"meta\" folder.\n"
+        s.exit(0)
     print "-- End of parsing\n"
+    print "/!\ Constructing the whole taxonomic tree..."
+    taxoTree = TaxoTree("Root").addNodes(paths,nodesList)
     print "/!\ Constructing the features vectors..."
     try:
         featuresVectorList,matchingNodes,nodesList = featuresCreate(samplesInfoList,infoList,filenames,fastaFileName)
@@ -31,7 +44,7 @@ def main():
         print "/!\ ERROR: If the line above is blank, it may be an uncatched ValueError.\n"
         s.exit(0)
     print "-- End of construction\n"
-    dataArray = [samplesInfoList,infoList,nodesList,sampleIDList,featuresVectorList,matchingNodes]
+    dataArray = [samplesInfoList,infoList,nodesList,sampleIDList,featuresVectorList,matchingNodes,paths,n,nodesList,taxoTree]
     answer = ""
     while not ((answer == "exit") or (answer == "exit()") or (answer == "quit")):
         try:

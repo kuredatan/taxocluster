@@ -191,7 +191,7 @@ class TaxoTree(object):
         return constructedTree[-1]
     #
     #
-    def addNode(self,paths,nodesList,samplesList,ranks=["S","G","F","O","C","P","K","R"]):
+    def addNode(self,paths,nodesList,ranks=["S","G","F","O","C","P","K","R"]):
         from time import time
         start = time()
         sortedNodesList,pathsNodes,sampleHitListNodes,allBrotherList,hashBrotherList,hashFatherList,pathsNodesLength,nodesNumber = self.addNodePreProcess(paths,nodesList,samplesList,ranks)
