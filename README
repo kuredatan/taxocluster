@@ -23,40 +23,32 @@ In Pyzo/Anaconda:
 
 -----------------------------------------------------------------------------------------------------------------
 
-This program uses a Naive Bayes Classifier to infer correlations between metadata and the phylogenetic trees in samples. The classifier classifies a sample/patient in a classe corresponding to a certain list of values for a certain set of metadata.
+This program uses a K-Means type clustering to infer correlations between metadata and the phylogenetic trees in samples. 
 
-A sample/patient is defined with a features vector, containing the numeric values (boolean values are 0 and 1) corresponding to every metadatum collected, and a phylogenetic vector, containing for each node n of the phylogenetic tree a list of read numbers r such as n matches the read r. 
-
-1) User firstly chooses the metadatum to cluster the samples.
-2) User can choose between these two options:
-    a) User may select the nodes of interest, and the algorithm focuses exclusively on these nodes to classify the samples.
-    b) User may choose two integers s and n. The algorithm then launches s random sub-samplings so as it returns the set of n nodes which classifies the best (according to Youden's J statistic, see below) the set of samples. 
-
-A set of samples is randomly selected to train the algorithm (it may add a probability if there is no sample of a given value of metadatum to avoid the problem of zero-probabilities). The algorithm computes for each node of interest the expectation and standard deviation of the number of match in every sample to this node. These samples will be affected to the different class according to their metadatum values.
-
-Then for every sample s that does not belong to the training set, the algorithm will assign the most probable class to s (classic calculus with Bayesian hypotheses).
-
-Relevancy of the assignment will be measured with Youden's index, or Youden's J statistic (in later versions, it may handle a slightly modified version of F-measure and/or ROC space interpretation) for a given class C:
-
-J(c) = TP(c)/(TP(c) + FN(c)) + TN(c)/(TN(c) + FP(c)) - 1
-where TP(c) are True Positive for class C (the number of samples assigned to the correct class: C matches their metadata values),
-FN(c) are False Negative (the number of samples not assigned to C and matching C),
-FP(c) are False Positive (the number of samples assigned to C and not matching C),
-and TN(c) are True Negative (the number of samples not assigned to C and not matching C).
-
-The best classification is the classification such as, for all class C, J(c) is the closest to 1 (that is, such as, if n is the sum of J(C) for all s classes C, s - n is minimum and non-negative).
+(...)
 
 -----------------------------------------------------------------------------------------------------------------
 
 Details about the files:
 **** actions.py ****
 
-**** classifier.py ****
+**** compareClusters.py ****
+Tools to quantify how much two clusters are alike.
+
+**** computeDistances.py ****
+Different sorts of distances for the clustering.
+
+**** dotModule.py ****
+Turns a graph (adjacency matrix) into DOT code (to visualize the graph with GraphViz).
 
 **** featuresVector.py ****
+Create features vector for each patient.
 
-**** /files
+**** /files ****
 Stores written files using writeOnFiles functions.
+
+**** kMeans.py ****
+Implements K-Means Algorithm.
 
 **** main.py ****
 Interface with the user.
@@ -67,6 +59,9 @@ Contains raw material.
 **** misc.py ****
 Contains useful macros.
 
+**** normalization.py ****
+Normalizes values of a list.
+
 **** parsingFasta.py ****
 Parses FASTA file stored at /meta.
 
@@ -76,26 +71,19 @@ Parses data table stored at /meta.
 **** parsingMatch.py ****
 Parses MATCH files stored at /meta/match.
 
-**** plottingValues.py ****
-Draws pies.
+**** parsingTree.py ****
+Parses .tree files stored at /meta.
 
-**** randomSampling.py ****
-Chooses randomly a certain number of elements in a set.
-
-**** training.py ****
-Training part for the classifier.
+**** taxoTree.py ****
+Implements a modified version of taxonomic tree.
 
 **** writeOnFiles ****
 Helps saving results in files.
-
-**** youden.py ****
-Computation of Youden's J statistic.
-
 
 -----------------------------------------------------------------------------------------------------------------
 
 Comments:
 
-*** Before starting TAXOBINARYCLASSIFIER ***
+*** Before starting TAXOCLUSTER ***
 - Create a folder entitled "files" to store your results.
 

@@ -1,17 +1,14 @@
 from __future__ import division
 import numpy as np
 import re
-import random as rand
 
 from writeOnFiles import writeFile
-from misc import isInDatabase,sanitize,inf
-from classifier import classifyIt
-from youden import countYouden,interpretIt
-from randomSampling import randomChoice
-from multiDimList import MultiDimList
-from plottingValues import plotPie
-
-#@dataArray = [samplesInfoList,infoList,nodesList,sampleIDList,featuresVectorList,matchingNodes]
+from taxoTree import TaxoTree,printTree
+from misc import isInDatabase,partitionSampleByMetadatumValue,cleanClusters,trimList,convertClustersIntoGraph
+from computeDistance import dist1,dist2
+from dotModule import graphNO
+ 
+#@dataArray = [samplesInfoList,infoList,nodesList,sampleIDList,featuresVectorList,matchingNodes,paths,n,nodesListTree,taxoTree]
 
 integer = re.compile("[0-9]+")
 
@@ -47,6 +44,26 @@ def parseListNode(string):
         name,rank = nodeSplitName[-1],nodeSplitRank[0]
         res.append((name,rank))
     return res
+
+def parseIntList(string):
+    if not (len(string.split(",")) == 1):
+        print "\n/!\ ERROR: Do not use ',' as a separator: rather use ';'."
+        raise ValueError
+    elif not (len(string.split(":")) == 1):
+        print "\n/!\ ERROR: Do not use ':' as a separator: rather use ';'."
+        raise ValueError
+    l = string.split(";")
+    resultList = []
+    for s in l:
+        if integer.match(s):
+            resultList.append(int(s))
+        elif s == "+inf" or s == "-inf":
+            resultList.append(s)
+        else:
+            print "\n/!\ ERROR: Here you can only use integers or '+inf' or '-inf'."
+            raise ValueError
+    return resultList
+
 #___________________________________________________________________________
 
 #Macros for formatting
@@ -64,91 +81,60 @@ def sanitizeNode(stringNode):
     return "(" + stringNode[0] + "," + stringNode[1] + ")"
 
 #____________________________________________________________________________
+#@dataArray = [samplesInfoList,infoList,nodesList,sampleIDList,featuresVectorList,matchingNodes,paths,n,nodesListTree,taxoTree]
 
-#@dataArray = [samplesInfoList,infoList,nodesList,sampleIDList,featuresVectorList,matchingNodes]
-#See featuresVector.py and README for more details about features vectors.
-#@classes and @assignedClasses are MDL (multi dimensional lists)
-def userNodeSelectionAct(dataArray):
+#Actions
+#Improvement will include a whole list of metadata to cluster
+def clusteringAct(dataArray):
     print dataArray[1]
-    metadata = parseList(raw_input("Input the metadata that will cluster the set of samples among those written above. [ e.g. " + dataArray[1][0] + ";" + dataArray[1][-1] + " ]\n"))
-    isInDatabase(metadata,dataArray[1])
-    nodesList = parseListNode(raw_input("Choose the group of nodes you want to consider exclusively. [ Read the taxonomic tree to help you: e.g. " + sanitizeNode(dataArray[2][-3]) + ";" + sanitizeNode(dataArray[2][1]) + ";" + sanitizeNode(dataArray[2][-1]) + " ]\n"))
-    isInDatabase(nodesList,dataArray[2])
-    #@shape for @assignedClasses is the same than the one for @classes
-    assignedClasses,classes,shape,valueSets = classifyIt(dataArray,metadata,nodesList)
-    numberClass = lenMDL(classes,shape)
-    #len(dataArray[0])?
-    youdenJ = countYouden(assignedClasses,classes,shape,len(dataArray[0]))
-    interpretIt(youdenJ)
-    answer = raw_input("Do you want to plot the classes obtained as a pie? Y/N")
-    if answer == "Y":
-        labels = [ "Metadata: " + str(metadata) + ", Values for each metadatum: " + str([ valueSet for valueSet in valueSets]) ]
-        percentagesAs = mapMDL(assignedClasses,shape,len)
-        percentages = mapMDL(classes,shape,len)
-        plotPie(labels,percentagesAs,"Assignments depending on " + str(nodesList) + " to class for metadata " + str(metadata))
-        plotPie(labels,percentages,"Real classes depending on " + str(nodesList) + " for metadata " + str(metadata))
-    elif not (answer == "N"):
-        print "\n Answer by Y or N!"
-    answer = raw_input("Do you want to save the results? Y/N")
+    metadatum = sanitize(raw_input("Select the metadatum to cluster the set of samples. [e.g. " + dataArray[1][0] + "]"))
+    isInDatabase([metadatum],dataArray[1])
+    #that is, k in K-means Algorithm
+    valueSet,clusters = partitionSampleByMetadatumValue([metadatum],dataArray[1],dataArray[0])
+    numberClass = len(valueSet)
+    startSet = [cluster[0] for cluster in kClusters]
+    #Selects the starting samples of each cluster
+    startingSet = [[cluster[0]] for cluster in clusters]
+    print "/!\ Clustering with the first distance..."
+    #@distanceMatrix is the distance matrix between each pair of samples
+    #@distanceInCluster is a list of lists of (sample1,sample2,distance)
+    #where sample1 and sample2 belong to the same cluster
+    trimmedList = trimList(dataArray[3],startSet)
+    kClusters,_,distanceInCluster = kMeans(trimmedList,numberClass,startingSet,startSet,dist1,dataArray)
+    print "-- End of first clustering --"
+    #Deletes samples in cluster that are too far from the others
+    kClusters = cleanClusters(kClusters,distanceInCluster)
+    startSet = [cluster[0] for cluster in kClusters]
+    startingSet = [[cluster[0]] for cluster in kClusters]
+    trimmedList = trimList(dataArray[3],startSet)
+    print "/!\ Clustering with the second distance..."
+    kClusters,distanceMatrix,_ = kMeans(trimmedList,numberClass,startingSet,startSet,dist2,dataArray)
+    print "-- End of second clustering --"
+    print "Printing the",numberClass,"clusters"
+    i = 1
+    #@kClusters contains the list of the k clusters. Each cluster is a list of sample IDs
+    for cluster in kClusters:
+        print "\n-- Cluster #",i
+        print "Size:",len(cluster)
+        for x in cluster:
+            print x
+        i += 1
+    answer = raw_input("Do you want to save the results? Y/N\n")
     if (answer == "Y"):
-        writeFile("Youden's J statistic for this classification is: " + str(youdenJ) + "\n","Assignments depending on " + listNodes(nodesList) + " to classes for metadata " + str(metadata))
+        data = "**** CLUSTERS FOR METADATUM " + metadatum + "WITH VALUES: " + str(valueSet)
+        i = 1
+        for cluster in kClusters:
+            data += "\n\n-- Cluster #" + str(i)
+            data += "\nSize: " + str(len(cluster))
+            for x in cluster:
+                data += "\n" + str(x)
+            data += "END OF FILE ****"
+        writeFile(data)
+        graph = convertClustersIntoGraph(kClusters,distanceMatrix,trimmedList,startSet)
+        graphNO(graph)
     elif not (answer == "N"):
-        print "\n Answer by Y or N!"
-    return assignedClasses,youdenJ
+        print "/!\ You should answer by Y or N."
+#____________________________________________________________________________
 
-#________________________________________________________________________________________________________________________
-
-def randomSubSamplingAct(dataArray):
-    print dataArray[1]
-    metadata = parseList(raw_input("Input the metadata that will cluster the set of samples among those written above. [ e.g. " + dataArray[1][0] + ";" + dataArray[1][-1] + " ]\n"))
-    isInDatabase(metadata,dataArray[1])
-    s = raw_input("Input the number s of random samplings.\n")
-    n = raw_input("Input the number n of nodes to select at each try.\n")
-    if not integer.match(s) or not integer.match(n):
-        print "\n/!\ ERROR: s and n must both be integers."
-        raise ValueError
-    s,n = int(s),int(n)
-    #Here the set of classes is a list of two lists containing the samples in C and not C
-    bestClassification = []
-    bestClassesList = []
-    bestShape = []
-    bestValuesList = []
-    #Worse value for this coefficient
-    currBestYouden = inf
-    nodesNumber = len(dataArray[3])
-    while s:
-        #Randomly draw n distinct nodes among the nodes in the taxonomic tree
-        nodesList = randomChoice(dataArray[2],n)
-        assignedClasses,classes,shape,valueSets = classifyIt(dataArray,metadata,nodesList)
-        numberClass = lenMDL(classes,shape)
-        #len(dataArray[0])?
-        youdenJ = countYouden(assignedClasses,classes,shape,len(dataArray[0]))
-        res = numberClass - youdenJ
-        if min(res,currBestYouden) == res:
-            bestValuesList = []
-            for i in valueSets:
-                bestValuesList.append(i)
-            bestClassification = []
-            for i in nodesList:
-                bestClassification.append(i)
-            bestShape = []
-            for i in shape:
-                bestShape.append(i)
-            currBestYouden = res
-            bestClassesList = []
-            for i in assignedClasses:
-                bestClassesList.append(i)
-        s -= 1
-    interpretIt(numberClass - currBestYouden)
-    if answer == "Y":
-        labels = [ "Metadata: " + str(metadata) + ", Values for each metadatum: " + str([ valueSet for valueSet in valueSets]) ]
-        percentagesAs = mapMDL(assignedClasses,shape,len)
-        percentages = mapMDL(classes,shape,len)
-        plotPie(labels,percentagesAs,"Assignments depending on " + str(nodesList) + " to class for metadata " + str(metadata))
-        plotPie(labels,percentages,"Real classes depending on " + str(nodesList) + " for metadata " + str(metadata))
-    answer = raw_input("Do you want to save the results? Y/N")
-    if (answer == "Y"):
-        writeFile("Best Youden's J statistic for this classification is: " + str(numberClass - currBestYouden) + "\nand most relevant list of nodes for this set of metadata is:" + str(bestClassification),"Assignments to classes for metadata " + str(metadata))
-    elif not (answer == "N"):
-        print "\n Answer by Y or N!"
-    return bestClassification,(numberClass - currBestYouden),bestClassesList
+def printTreeAct(dataArray):
+    printTree(dataArray[7])

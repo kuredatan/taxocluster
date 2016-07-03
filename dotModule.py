@@ -14,7 +14,7 @@ def graphNO(graph):
     data = "graph g { \n"
     n,m = np.shape(graph)
     for i in range(n):
-        for j in range(m):
+        for j in range(i+1,m):
             namei,namej,delta,distance = graph[i][j]
             if delta:
                 data += "%s -- %s [label=%s]; \n"%(namei,namej,str(distance))

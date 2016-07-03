@@ -3,7 +3,7 @@ import sys as s
 from parsingInfo import parseInfo
 from parsingTree import parseTree
 from taxoTree import TaxoTree
-from actions import userNodeSelectionAct,randomSubSamplingAct,parseList
+from actions import clusteringAct,printTreeAct,parseList
 from featuresVector import featuresCreate
 from misc import getSampleIDList
 
@@ -29,7 +29,7 @@ def main():
         s.exit(0)
     print "..."
     try:
-        paths,n,nodesList = parseTree(tTree)
+        paths,n,nodesListTree = parseTree(tTree)
     except IOError:
         print "\nERROR: Maybe the filename",tTree,".tree does not exist in \"meta\" folder.\n"
         s.exit(0)
@@ -44,21 +44,21 @@ def main():
         print "/!\ ERROR: If the line above is blank, it may be an uncatched ValueError.\n"
         s.exit(0)
     print "-- End of construction\n"
-    dataArray = [samplesInfoList,infoList,nodesList,sampleIDList,featuresVectorList,matchingNodes,paths,n,nodesList,taxoTree]
+    dataArray = [samplesInfoList,infoList,nodesList,sampleIDList,featuresVectorList,matchingNodes,paths,n,nodesListTree,taxoTree]
     answer = ""
     while not ((answer == "exit") or (answer == "exit()") or (answer == "quit")):
         try:
             print "What do you want to do?"
             print "[Write down the number matching with the action required. Details are in README file]"
-            print "   1: User node selection"
-            print "   2: Random sub-sampling"
+            print "   1: Clustering"
+            print "   2: Print the taxonomic tree"
             print "[To quit, write down exit]"
             answer = raw_input("Your answer?\n")
             if (answer =="1"):
-                userNodeSelectionAct(dataArray)
+                clusteringAct(dataArray)
                 print "-- End \n"
             elif (answer == "2"):
-                randomSubSamplingAct(dataArray)
+                printTreeAct(dataArray)
                 print "-- End \n"
             elif not ((answer == "exit") or (answer == "exit()") or (answer == "quit")):
                 print "/!\ ERROR: Please enter a number between 1 and 2 included, or 'exit' if you want to quit."

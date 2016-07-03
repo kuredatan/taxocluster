@@ -8,6 +8,49 @@ inf=100000000000000
 
 integer = re.compile("[0-9]+")
 
+#@n = len(initList)
+def getCorrespondingID(element,initList,n):
+    i = 0
+    while i < n and not (element == initList[i]):
+        i += 1
+    if (i == n):
+        print "\n/!\ Element",element,"not found in list",initList,"."
+        raise ValueError
+    return i
+
+def convertClustersIntoGraph(kClusters,distanceMatrix,trimmedList,startingSet):
+    n,_ = np.shape(distanceMatrix)
+    elementSet = trimmedList + startingSet
+    #adjacency matrix
+    graph = [ [("s1","s2",0,inf)]*n for _ in range(n) ]
+    for cluster in kClusters:
+        m = len(cluster)
+        #Non-oriented graph
+        for i1 in range(m):
+            for i2 in range(i1+1,m):
+                id1 = getCorrespondingID(cluster[i1],elementSet)
+                id2 = getCorrespondingID(cluster[i2],elementSet)
+                graph[i1][i2] = (cluster[i1],cluster[i2],1,distanceMatrix[id1][id2])
+    return graph
+
+#Deleting one quarter of each cluster
+def cleanClusters(clusters,distanceInCluster):
+    k = len(clusters)
+    newClusters = []
+    for _ in range(k):
+        cluster = clusters.pop()
+        n = len(cluster)
+        distanceList = sorted(distanceInCluster.pop(),key=lambda x: x[2])
+        distanceQuartile = distanceList[n/4:]
+        newCluster = []
+        for distancePair in distanceQuartile:
+            if not mem(distancePair[0],newCluster):
+                newCluster.append(distancePair[0])
+            if not mem(distancePair[1],newCluster):
+                newCluster.append(distancePair[1])
+        newClusters.append(newCluster)
+    return newClusters
+            
 def truncate(number, digitNumber):
     #Splitting the decimal and the integer parts of @number
     numberStringed = str(number).split('.')
@@ -214,27 +257,41 @@ def isLeaf(paths,name,rank,allNodes):
         #Searches which paths may lead to (name,rank)
         return (len(l) == 1)
 
-def setOperations(paths,name1,rank1,name2,rank2,allNodes=False):
-    path1 = selectPath(paths,name1,rank1)
-    path2 = selectPath(paths,name2,rank2)
-    n = min(len(path1),len(path2))
-    #if there is more than one path to the nodes, or no path
-    if (n < 1):
-        print "\n/!\ ERROR: [BUG] [misc/setOperations] It is not a tree."
-        raise ValueError
-    else:
-        commonPath = []
-        i = 0
-        #As long as path1 and path2 are not empty
-        while (i < n) and (path1[i] == path2[i]):
-            commonPath.append(path1[i])
-            i += 1
-        return commonPath,path1[i+1:],path2[i+1:]
+#@initList is a list of integers
+def minList(initList):
+    mini = initList[0]
+    for x in initList[1:]:
+        if mini > x:
+            mini = x
+    return mini
+
+def isEqual(pathsNodes):
+    b = True
+    paths = [path for path in pathsNodes[1:]]
+    while b and paths:
+        path = paths.pop()
+        b = (path[0] == pathsNodes[0][0])
+    return b
+
+def setOperations(paths,nodesList,allNodes=False):
+    pathsNodes = []
+    for node in nodesList:
+        pathNodes.append(selectPath(paths,node[0],node[1]))
+    commonPaths = []
+    n = minList([len(path) for path in pathsNodes])
+    i = 0
+    #As long as paths in @pathsNodes are not empty
+    while (i < n) and pathsNodes[0] and isEqual(pathsNodes):
+        commonPaths.append(pathsNodes[0][0])
+        pathsNodes = [ path[1:] for path in pathsNodes ]
+        i += 1
+    return commonPath,pathsNodes
 
 #Computes LCA from the list paths of a TaxoTree
-def taxoLCA(paths,name1,rank1,name2,rank2,allNodes=False):
-    commonPath,_,_ = setOperations(paths,name1,rank1,name2,rank2,allNodes=False)
-    return commonPath[-1]
+def taxoLCA(paths,nodesList,allNodes=False):
+    n = len(nodesList)
+    commonPaths,_ = setOperations(paths,nodesList,allNodes)
+    return commonPaths[-1]
 
 #Checks if the elements in @parselist belong to @datalist else returns an error
 def isInDatabase(parseList,dataList):

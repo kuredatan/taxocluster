@@ -1,5 +1,5 @@
 #The entire taxonomy tree
-#Slightly modified version of TaxoTree, since sample Hit Lists are not useful anymore!
+#Slightly modified version of TaxoTree, since sample hit lists are not useful anymore!
 
 #A node (assignment of a read by Tango) in such a tree contains:
 #@name the name of the species
@@ -13,7 +13,7 @@
 #Nodes and leaves are only distinguinshed by children=[]
 
 from parsingTree import parseTree
-from parsingMatrix import parseMatrix,associatedData
+from parsingMatrix import parseMatrix
 from misc import containsSpecie,mem,selectPath,compare
 
 class TaxoTree(object):
@@ -84,7 +84,7 @@ class TaxoTree(object):
         print "---"
     #
     #
-    def addNodePreProcess(self,paths,nodesList,samplesList,ranks):
+    def addNodePreProcess(self,paths,nodesList,ranks):
         #Firstly, sorting nodes by decreasing rank: R < K < P < C < O < F < G < S
         sortedNodesList = sorted(nodesList,cmp=lambda x,y: compare(x[1],y[1]))
         nodesNumber = len(sortedNodesList)
@@ -97,7 +97,6 @@ class TaxoTree(object):
         #@selectionPath is an optimized version of @selectPath for the construction of taxonomic trees
         pathsNodes = [ selectPath(pathsCopy,node[0],node[1],n) for node in sortedNodesList ]
         pathsNodesLength = len(pathsNodes)
-        sampleHitListNodes = [ associatedData(nodesList,samplesList,node[0],node[1]) for node in sortedNodesList ]
         #Thirdly, clustering brothers (of same rank) into lists for each rank in @allBrotherList
         #Index of current node in sortedNodesList
         currNodeIdent = 0
@@ -141,7 +140,7 @@ class TaxoTree(object):
                 brotherNodesList.append(thisRankNodesList)
             if brotherNodesList:
                 allBrotherList.append(brotherNodesList)
-        return sortedNodesList,pathsNodes,sampleHitListNodes,allBrotherList,hashBrotherList,hashFatherList,pathsNodesLength,nodesNumber
+        return sortedNodesList,pathsNodes,allBrotherList,hashBrotherList,hashFatherList,pathsNodesLength,nodesNumber
     #
     #
     #Starting from the leaves:
@@ -151,7 +150,7 @@ class TaxoTree(object):
     #(2) if n has no child (we can check this through @hashFatherList: if hashFatherList[n] is to None, then the corresponding node sortedNodesList[n] does not own any child): then construct its tree and store it in @constructedTree (@constructedTree[i] matches node @sortedNodesList[i])
     #(3) else: get n's children identifiers through @hashFatherList[n], get the children's trees, construct the tree associated to n, and store it in @constructedTree[n]
     #(4) Repeat loop2 until rank R and return tree associated to Root
-    def addNodeAux(self,paths,sortedNodesList,pathsNodes,samplesHitListNodes,allBrotherList,hashBrotherList,hashFatherList,pathsNodesLength,nodesNumber,ranks):
+    def addNodeAux(self,paths,sortedNodesList,pathsNodes,allBrotherList,hashBrotherList,hashFatherList,pathsNodesLength,nodesNumber,ranks):
         #Initializing @constructedTree
         constructedTree = [ None ] * nodesNumber
         sLs = sortedNodesList[:: -1]
@@ -182,10 +181,10 @@ class TaxoTree(object):
                     #Get children identifiers
                     children = allBrotherList[n][m][1:]
                     childrenTrees = [ constructedTree[x] for x in children ]
-                    constructedTree[idt] = TaxoTree(nm,rk,idt,samplesHitListNodes[idt],pathsNodes[idt],childrenTrees,paths)
+                    constructedTree[idt] = TaxoTree(nm,rk,idt,pathsNodes[idt],childrenTrees,paths)
                 #Step 2:
                 else:
-                    constructedTree[idt] = TaxoTree(nm,rk,idt,samplesHitListNodes[idt],pathsNodes[idt],[],paths)
+                    constructedTree[idt] = TaxoTree(nm,rk,idt,pathsNodes[idt],[],paths)
         constructedTree[-1].children = [ child for child in constructedTree[-1].children if child ]
         return constructedTree[-1]
     #
@@ -193,8 +192,8 @@ class TaxoTree(object):
     def addNode(self,paths,nodesList,ranks=["S","G","F","O","C","P","K","R"]):
         from time import time
         start = time()
-        sortedNodesList,pathsNodes,sampleHitListNodes,allBrotherList,hashBrotherList,hashFatherList,pathsNodesLength,nodesNumber = self.addNodePreProcess(paths,nodesList,samplesList,ranks)
-        finalTree = self.addNodeAux(paths,sortedNodesList,pathsNodes,sampleHitListNodes,allBrotherList,hashBrotherList,hashFatherList,pathsNodesLength,nodesNumber,ranks)
+        sortedNodesList,pathsNodes,allBrotherList,hashBrotherList,hashFatherList,pathsNodesLength,nodesNumber = self.addNodePreProcess(paths,nodesList,samplesList,ranks)
+        finalTree = self.addNodeAux(paths,sortedNodesList,pathsNodes,allBrotherList,hashBrotherList,hashFatherList,pathsNodesLength,nodesNumber,ranks)
         end = time()
         print "TIME:",(end-start),"sec"
         return finalTree
@@ -212,17 +211,32 @@ class TaxoTree(object):
                 nodeList = child.children + nodeList
             else:
                 nodeList = nodeList + child.children
+    #
+    #
+    def leaves(self,DFS=False):
+        numberLeaves = 0
+        leavesList = []
+        nodesList = [self]
+        while nodesList:
+            node = nodesList.pop()
+            #if node is a leaf
+            if not node.children:
+                numberLeaves += 1
+                leavesList.append(node)
+            else:
+                if DFS:
+                    nodesList = node.children + nodesList
+                else:
+                    nodesList += node.children
+        return leavesList,numberLeaves
 
-def printTree(tree,sampleOn=False):
+def printTree(tree):
     print "ROOT"
     if not tree:
         #Should not happen...
         print "\n/!\ ERROR: Tree turned out to be None."
         raise ValueError
     print "(%s,%s,%d)"%(tree.name,tree.rank,tree.ident)
-    if sampleOn:
-        print "SAMPLE HIT LIST"
-        print tree.sampleHitList
     nodeList = []
     for ch in tree.children:
         nodeList.append(ch)
