@@ -13,7 +13,11 @@ def getBackBacteria(string):
     if not len(ls) == 2:
         print "\n/!\ ERROR: FASTA file formatting error."
         raise ValueError
-    return (sanitize(ls[1]),sanitize(ls[0]).upper())
+    rank = sanitize(ls[0]).upper()
+    #Phylogeny does not include the node itself
+    if rank == "S":
+        return ""
+    return (sanitize(ls[1]),rank)
 
 #gets back names
 def recomposeNameList(nameList):
@@ -49,6 +53,7 @@ def parseFasta(filename):
         #deletes > part
         lsDirty = lines[k][1:].split(" ")
         identifier = sanitize(lsDirty[0])
+        print identifier
         #from name...
         lsDirty = lsDirty[2:]
         name = ""
@@ -63,7 +68,10 @@ def parseFasta(filename):
         lsDirty = recomposeNameList(lsDirty[i:-1])
         #gets back phylogeny
         for phylo in lsDirty:
-            currPhylogeny.append(getBackBacteria(sanitize(phylo).split(";")[0]))
+            bact = getBackBacteria(sanitize(phylo).split(";")[0])
+            #if bact != ""
+            if bact:
+                currPhylogeny.append(bact)
         idSequences.append((identifier,name))
         phyloSequences.append(currPhylogeny)
         k += 2
