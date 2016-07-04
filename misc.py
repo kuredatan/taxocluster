@@ -10,6 +10,9 @@ integer = re.compile("[0-9]+")
 
 #@n = len(initList)
 def getCorrespondingID(element,initList,n):
+    if not (len(initList) == n):
+        print "\n/!\ ERROR: n should be the length of the list:",n,len(initList),"."
+        raise ValueError
     i = 0
     while i < n and not (element == initList[i]):
         i += 1
