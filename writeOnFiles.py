@@ -12,7 +12,7 @@ def writeText(filename,data):
 def writeArray(filename,data,header):
     np.savetxt("files/" + filename + ".taxotree",data,"%s"," | "," \n",header + " \n","\n\nEND OF FILE ****","")
 
-def writeFile(data,header,typeData="text"):
+def writeFile(data,header="",typeData="text"):
     filename = raw_input("In which file do you want to write it? [Be careful not to choose a name that already exists as it would truncate the existing file]\n")
     if (typeData == "text"):
         writeText(filename,data)

@@ -85,4 +85,4 @@ def kMeans(elementSet,k,kClusters,startSet,dist,dataArray,q=0.5):
         endIt = shouldStop(kClusters,previouskClusters,k)
         previouskClusters = deepcopy(kClusters)
         iteration += 1
-    return kClusters,distanceMatrix
+    return kClusters,meanSamples,totalElementSet,distanceMatrix

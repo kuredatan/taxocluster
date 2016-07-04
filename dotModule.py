@@ -1,4 +1,4 @@
-from writeOnFiles import writeText
+from writeOnFiles import writeFile
 from misc import sanitize
 
 import numpy as np
@@ -10,13 +10,14 @@ import numpy as np
 
 #For non-oriented graphs
 def graphNO(graph):
-    filename = sanitize(raw_input("In which file do you want to store it?"))
     data = "graph g { \n"
     n,m = np.shape(graph)
     for i in range(n):
         for j in range(i+1,m):
-            namei,namej,delta,distance = graph[i][j]
-            if delta:
-                data += "%s -- %s [label=%s]; \n"%(namei,namej,str(distance))
+            #namei,namej,delta,distance = graph[i][j]
+            if graph[i][j]:
+            #if delta:
+                data += "%d -- %d; \n"%(i,j)
+                #data += "%s -- %s [label=%s]; \n"%(namei,namej,str(distance))
     data += " } \n"
-    writeOnFiles(filename,data)
+    writeFile(data)

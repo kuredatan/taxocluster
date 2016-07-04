@@ -12,7 +12,7 @@ def convertMatchingIntoFeatures(featuresVectorList,matchingNodes,sampleID):
 #distance(@sample1,@sample2) = |number of nodes matched in @sample1| + |number of nodes matched in @sample2| - 2*|number of nodes matched in both samples|
 def distance1(sample1,sample2,dataArray):
     sample11 = convertFeaturesIntoMatching(dataArray[4],dataArray[5],sample1)
-    sample22 = convertMatchingIntoFeatures(dataArray[4],dataArray[5],sample2)
+    sample22 = convertFeaturesIntoMatching(dataArray[4],dataArray[5],sample2)
     samplesList = [x[0] for x in matchingNodes]
     id1 = getCorrespondingID(sample11,samplesList)
     id2 = getCorrespondingID(sample22,samplesList)
@@ -24,7 +24,7 @@ def distance1(sample1,sample2,dataArray):
 #distance(@sample1,@sample2) = |L1| + |L2| - q*(|N1interM2| + |N2interM1|) - |M1interM2| (see README for notations)
 def distance2(sample1,sample2,dataArray,q=0.5):
     sample11 = convertFeaturesIntoMatching(dataArray[4],dataArray[5],sample1)
-    sample22 = convertMatchingIntoFeatures(dataArray[4],dataArray[5],sample2)
+    sample22 = convertFeaturesIntoMatching(dataArray[4],dataArray[5],sample2)
     samplesList = [x[0] for x in matchingNodes]
     id1 = getCorrespondingID(sample11,samplesList)
     id2 = getCorrespondingID(sample22,samplesList)
@@ -33,6 +33,7 @@ def distance2(sample1,sample2,dataArray,q=0.5):
     nodeLCA1 = taxoLCA(paths,nodesList1)
     nodeLCA2 = taxoLCA(paths,nodesList2)
     #@dataArray[9] = taxoTree
+    #Looking for the subtree rooted at the LCA of the matched nodes
     tree1 = dataArray[9].search(nodeLCA1[0],nodeLCA1[1])
     tree2 = dataArray[9].search(nodeLCA2[0],nodeLCA2[1])
     leaves1,leavesNumber1 = tree1.leaves(False)
