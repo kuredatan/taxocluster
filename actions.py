@@ -149,20 +149,20 @@ def clusteringAct(dataArray):
     print "Compare centers score is:",compareCentersScore,"."
     answer = raw_input("Do you want to save the results? Y/N\n")
     if (answer == "Y"):
+        answer2 = raw_input("Do you want to compute the sets of common nodes for each cluster? [It can be considered relevant when the score of comparing clusters is at least over 0.5] Y/N\n")
+        commonList = extractCommonNodes(kClusters,dataArray)
         data = "**** CLUSTERS FOR METADATUM " + metadatum + "WITH VALUES: " + str(valueSet)
         i = 1
         for cluster in kClusters:
             data += "\n\n-- Cluster #" + str(i)
             data += "\nSize: " + str(len(cluster))
+            if (answer2 == "Y"):
+                data += "\nSet of common nodes: " + str(commonList[i]) 
             for x in cluster:
                 data += "\n" + str(x)
+            i += 1
         data += "\n\nCompare clusters score is:" + str(compareClustersScore)
         data += "\n\nCompare centers score is:" + str(compareCentersScore)
-        answer2 = raw_input("Do you want to compute the sets of common nodes for each cluster? [It can be considered relevant when the score of comparing clusters is at least over 0.5] Y/N\n")
-        if (answer2 == "Y"):
-            
-        elif not (answer == "N"):
-            print "/!\ You should answer by Y or N."
         data += "END OF FILE ****"
         writeFile(data)
         graph = convertClustersIntoGraph(kClusters,distanceMatrix,trimmedList,startSet)

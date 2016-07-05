@@ -119,9 +119,3 @@ def featuresCreate(sampleInfoList,infoList,filenames,fastaFileName):
     nodesList = getNodesList(idSequences,phyloSequences)
     matchingNodes = getMatchingNodes(allMatches,nodesList,idSequences)
     return featuresVectorList,matchingNodes,nodesList
-
-def test():
-    from parsingInfo import parseInfo
-    sampleInfoList,infoList = parseInfo("Info")
-    featuresVectorList,matchingNodes,nodesList = featuresCreate(sampleInfoList,infoList,["test"],"test")
-    return featuresVectorList[:3],matchingSequences[:3]

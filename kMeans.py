@@ -64,13 +64,16 @@ def dist(a,b,c):
 def kMeans(elementSet,k,kClusters,startSet,dist,dataArray,q=0.5):
     totalElementSet = elementSet + startSet
     n = len(totalElementSet)
+    if not (n == len(dataArray[3])):
+        print "\n/!\ ERROR: Different lengths of set of samples",len(dataArray[3]),n,"."
+        raise ValueError
     meanSamples = [(x[0],getCorrespondingID(x[0],totalElementSet,n)) for x in kClusters]
     #Computes the distance matrix
     distanceMatrix = np.zeros((n,n))
     for i1 in range(n):
         #dist is symmetric
         for i2 in range(i1+1,n):
-            s = dist(totalElementSet[i1],totalElementSet[i2],dataArray,q)
+            s = dist(totalElementSet[i1],totalElementSet[i2],dataArray,q,n)
             distanceMatrix[i1][i2] = s
             distanceMatrix[i2][i1] = s
     endIt = False
