@@ -8,8 +8,8 @@ from copy import deepcopy
 #@dist is the distance used to compute calculus
 #@elementSet is the set of elements to cluster
 #@k is the number of clusters required (it will likely be the number of clusters obtained by partitionning the set of elements by the values of metadata)
-#@startingSet is a list of k elements that will represent the means of each cluster (these elements will be likely be k elements which values of metadata are known)
-#Returns the k clusters and the distance matrix
+#@kClusters is a list of k elements that will represent the means of each cluster (these elements will be likely be k elements which values of metadata are known)
+#Returns the k clusters, the distance matrix, the list of (sample1,sample2,distance between sample1 and sample2) where sample1 and sample2 belong to the same cluster
 
 #Clusters are ordered
 def shouldStop(kClusters,previouskClusters,k):
@@ -19,6 +19,17 @@ def shouldStop(kClusters,previouskClusters,k):
         endIt = endIt and (set(kClusters[i]) == set(previouskClusters[i]))
         i += 1
     return endIt
+
+def constructDistanceInCluster(cluster,distanceMatrix,totalElementSet,n):
+    distanceInCluster = []
+    m = len(cluster)
+    idList = [None]*m
+    for i in range(m):
+        for j in range(i+1,m):
+            idi = idList[i] or getCorrespondingID(cluster[i],totalElementSet,n)
+            idj = idList[j] or getCorrespondingID(cluster[j],totalElementSet,n)
+            distanceInCluster.append((cluster[i],cluster[j],distanceMatrix[idi][idj]))
+    return distanceInCluster
 
 def updateMean(meanSample,cluster,distanceMatrix,totalElementSet,n):
     meanDistance = 0
@@ -59,7 +70,7 @@ def kMeans(elementSet,k,kClusters,startSet,dist,dataArray,q=0.5):
     for i1 in range(n):
         #dist is symmetric
         for i2 in range(i1+1,n):
-            s = dist(totalElementSet[i1],totalElementSet[i2],dataArray)
+            s = dist(totalElementSet[i1],totalElementSet[i2],dataArray,q)
             distanceMatrix[i1][i2] = s
             distanceMatrix[i2][i1] = s
     endIt = False
@@ -85,4 +96,7 @@ def kMeans(elementSet,k,kClusters,startSet,dist,dataArray,q=0.5):
         endIt = shouldStop(kClusters,previouskClusters,k)
         previouskClusters = deepcopy(kClusters)
         iteration += 1
-    return kClusters,meanSamples,totalElementSet,distanceMatrix
+    distanceInClusters = []
+    for cluster in kClusters:
+        distanceInClusters.append(constructDistanceInCluster(cluster,distanceMatrix,totalElementSet,n))
+    return kClusters,meanSamples,totalElementSet,distanceMatrix,distanceInClusters

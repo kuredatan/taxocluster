@@ -10,7 +10,8 @@ def convertMatchingIntoFeatures(featuresVectorList,matchingNodes,sampleID):
     return sampleID
 
 #distance(@sample1,@sample2) = |number of nodes matched in @sample1| + |number of nodes matched in @sample2| - 2*|number of nodes matched in both samples|
-def distance1(sample1,sample2,dataArray):
+#@q is useless here
+def distance1(sample1,sample2,dataArray,q):
     sample11 = convertFeaturesIntoMatching(dataArray[4],dataArray[5],sample1)
     sample22 = convertFeaturesIntoMatching(dataArray[4],dataArray[5],sample2)
     samplesList = [x[0] for x in matchingNodes]
@@ -22,7 +23,7 @@ def distance1(sample1,sample2,dataArray):
     return len(nodesList1) + len(nodesList2) - 2*len(common)
 
 #distance(@sample1,@sample2) = |L1| + |L2| - q*(|N1interM2| + |N2interM1|) - |M1interM2| (see README for notations)
-def distance2(sample1,sample2,dataArray,q=0.5):
+def distance2(sample1,sample2,dataArray,q):
     sample11 = convertFeaturesIntoMatching(dataArray[4],dataArray[5],sample1)
     sample22 = convertFeaturesIntoMatching(dataArray[4],dataArray[5],sample2)
     samplesList = [x[0] for x in matchingNodes]

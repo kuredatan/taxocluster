@@ -7,6 +7,7 @@ from taxoTree import TaxoTree,printTree
 from misc import isInDatabase,partitionSampleByMetadatumValue,cleanClusters,trimList,convertClustersIntoGraph
 from computeDistance import dist1,dist2
 from dotModule import graphNO
+from compareClusters import compareCluster,compareCenters
  
 #@dataArray = [samplesInfoList,infoList,nodesList,sampleIDList,featuresVectorList,matchingNodes,paths,n,nodesListTree,taxoTree]
 
@@ -87,28 +88,35 @@ def sanitizeNode(stringNode):
 #Improvement will include a whole list of metadata to cluster
 def clusteringAct(dataArray):
     print dataArray[1]
-    metadatum = sanitize(raw_input("Select the metadatum to cluster the set of samples. [e.g. " + dataArray[1][0] + "]"))
+    metadatum = sanitize(raw_input("Select the metadatum among those above to cluster the set of samples. [e.g. " + dataArray[1][0] + "]")).split(";")[0]
     isInDatabase([metadatum],dataArray[1])
-    #that is, k in K-means Algorithm
     valueSet,clusters = partitionSampleByMetadatumValue([metadatum],dataArray[1],dataArray[0])
+    #that is, k in K-means Algorithm
     numberClass = len(valueSet)
-    startSet = [cluster[0] for cluster in kClusters]
+    startSet = [cluster[0] for cluster in clusters]
     #Selects the starting samples of each cluster
-    startingSet = [[cluster[0]] for cluster in clusters]
-    print "/!\ Clustering with the first distance..."
-    #@distanceMatrix is the distance matrix between each pair of samples
-    #@distanceInCluster is a list of lists of (sample1,sample2,distance)
-    #where sample1 and sample2 belong to the same cluster
+    kClusters = [[cluster[0]] for cluster in clusters]
     trimmedList = trimList(dataArray[3],startSet)
-    kClusters,_,distanceInCluster = kMeans(trimmedList,numberClass,startingSet,startSet,dist1,dataArray)
+    print "/!\ Clustering with the first distance..."
+    #@distanceInClusters is a list of lists of (sample1,sample2,distance)
+    #where sample1 and sample2 belong to the same cluster
+    kClusters,_,_,_,distanceInClusters = kMeans(trimmedList,numberClass,kClusters,startSet,dist1,dataArray)
     print "-- End of first clustering --"
     #Deletes samples in cluster that are too far from the others
-    kClusters = cleanClusters(kClusters,distanceInCluster)
+    kClusters = cleanClusters(kClusters,distanceInClusters)
+    sampleSet = []
+    for cluster in kClusters:
+        sampleSet += cluster
     startSet = [cluster[0] for cluster in kClusters]
-    startingSet = [[cluster[0]] for cluster in kClusters]
-    trimmedList = trimList(dataArray[3],startSet)
+    kClusters = [[cluster[0]] for cluster in kClusters]
+    trimmedList = trimList(sampleSet,startSet)
+    q = int(sanitize(raw_input("Choose parameter q between 0 and 1.\n")))
+    if q < 0 or q > 1:
+        print "\n/!\ ERROR: You should choose q between 0 and 1."
+        raise ValueError
     print "/!\ Clustering with the second distance..."
-    kClusters,distanceMatrix,_ = kMeans(trimmedList,numberClass,startingSet,startSet,dist2,dataArray)
+    #@distanceMatrix is the distance matrix between each pair of samples
+    kClusters,meanSamples,totalElementSet,distanceMatrix,_ = kMeans(trimmedList,numberClass,kClusters,startSet,dist2,dataArray,q)
     print "-- End of second clustering --"
     print "Printing the",numberClass,"clusters"
     i = 1
@@ -119,6 +127,26 @@ def clusteringAct(dataArray):
         for x in cluster:
             print x
         i += 1
+    print "Score of the clustering (comprised between 0 and 1):"
+    print "The more it is close to 1, the more the clustering is relevant."
+    #The clustering obtained with the K-Means method
+    kClusterCopy = [cluster for cluster in kClusters]
+    #The clustering obtained by comparing the values of the metadatum
+    clustersCopy = [cluster for cluster in clusters]
+    #Score by using first method of comparison
+    compareClusterScore = 0
+    if not (len(kClustersCopy) == k == len(clustersCopy)):
+        print "\n/!\ ERROR: Length error in clustering:",k,len(kClustersCopy),len(clustersCopy),"."
+        raise ValueError
+    while kClusterCopy and clustersCopy:
+        cl1 = kClusterCopy.pop()
+        cl2 = clustersCopy.pop()
+        compareClusterScore += compareCluster(cl1,cl2)
+    compareClusterScore = compareClusterScore/k
+    #Score by using second method of comparison
+    compareCentersScore = compareCenters(meanSamples,clusters,totalElementSet,distanceMatrix)
+    print "Compare clusters score is:",compareClusterScore,"."
+    print "Compare centers score is:",compareCentersScore,"."
     answer = raw_input("Do you want to save the results? Y/N\n")
     if (answer == "Y"):
         data = "**** CLUSTERS FOR METADATUM " + metadatum + "WITH VALUES: " + str(valueSet)
@@ -128,7 +156,9 @@ def clusteringAct(dataArray):
             data += "\nSize: " + str(len(cluster))
             for x in cluster:
                 data += "\n" + str(x)
-            data += "END OF FILE ****"
+        data += "\n\nCompare clusters score is:" + str(compareClustersScore)
+        data += "\n\nCompare centers score is:" + str(compareCentersScore)  
+        data += "END OF FILE ****"
         writeFile(data)
         graph = convertClustersIntoGraph(kClusters,distanceMatrix,trimmedList,startSet)
         graphNO(graph)
