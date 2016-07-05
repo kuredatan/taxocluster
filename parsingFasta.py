@@ -1,5 +1,6 @@
 from misc import sanitize
 from time import time
+import subprocess as sb
 
 import re
 
@@ -40,20 +41,16 @@ def parseFasta(filename):
     start = time()
     idSequences = []
     phyloSequences = []
-    file_fasta = open("meta/" + filename + ".fasta","r")
-    lines = file_fasta.readlines()
-    file_fasta.close()
-    fileLength = len(lines)
-    k = 0
-    while k < fileLength:
+    sb.call("sed 'n;d' meta/" + filename + ".fasta > meta/newfile.fasta",shell=True)
+    fo = open("meta/newfile.fasta","r")
+    for line in fo:
         #the FASTA file is such as:
         #first line: >identifier integer.integer name rank__name;rank__name; ...; otu_integer [phylogeny]
         #second line: sequence associated to this identifier
         currPhylogeny = []
         #deletes > part
-        lsDirty = lines[k][1:].split(" ")
+        lsDirty = line[1:].split(" ")
         identifier = sanitize(lsDirty[0])
-        print identifier
         #from name...
         lsDirty = lsDirty[2:]
         name = ""
@@ -74,7 +71,8 @@ def parseFasta(filename):
                 currPhylogeny.append(bact)
         idSequences.append((identifier,name))
         phyloSequences.append(currPhylogeny)
-        k += 2
+    fo.close()
+    sb.call("rm -f meta/newfile.fasta",shell=True)
     end = time()
     print "TIME .fasta:",(end-start)
     return idSequences,phyloSequences

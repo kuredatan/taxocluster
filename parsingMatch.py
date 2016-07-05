@@ -6,11 +6,9 @@ from misc import sanitize
 #Returns the pair (identifier of patient a.k.a. @filename,list of identifiers of sequences matching a read in this patient)
 def parseMatch(filename):
     allSequences = []
-    file_match = open("meta/match/" + filename + ".match","r")
-    lines = file_match.readlines()
-    file_match.close()
+    fo = open("meta/match/" + filename + ".match","r")
     #Each line corresponds to a read of this patient
-    for read in lines:
+    for read in fo:
         lsDirty = read.split(" ")
         lsClean = []
         #Last string is "\n"
@@ -20,6 +18,7 @@ def parseMatch(filename):
             print "\n/!\ ERROR: MATCH parsing error:",len(lsClean),"."
             raise ValueError
         allSequences += lsClean[1:]
+    fo.close()
     return (filename,allSequences)
 
 #Returns the list @allMatches such as @allMatches[i] is a pair (identifier of patient,list of identifiers of sequences matching a read in this patient) 
@@ -32,7 +31,14 @@ def parseAllMatch(filenames):
                 allMatches.append(parseMatch(filename))
         except IOError:
             print "\nERROR: Maybe the filename",filename,".match does not exist in \"meta/matches\" folder\n"
-            s.exit(0)
+            #s.exit(0)
     end = time()
     print "TIME .match:",(end-start)
-    return allMatches
+    #return allMatches
+
+def test():
+    from parsingInfo import parseInfo
+    samplesInfoList,_ = parseInfo("Info")
+    samplesIDList = [sample[0] for sample in samplesInfoList]
+    print samplesIDList[0]
+    parseAllMatch([samplesIDList[0]])
