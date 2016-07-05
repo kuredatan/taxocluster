@@ -157,7 +157,12 @@ def clusteringAct(dataArray):
             for x in cluster:
                 data += "\n" + str(x)
         data += "\n\nCompare clusters score is:" + str(compareClustersScore)
-        data += "\n\nCompare centers score is:" + str(compareCentersScore)  
+        data += "\n\nCompare centers score is:" + str(compareCentersScore)
+        answer2 = raw_input("Do you want to compute the sets of common nodes for each cluster? [It can be considered relevant when the score of comparing clusters is at least over 0.5] Y/N\n")
+        if (answer2 == "Y"):
+            
+        elif not (answer == "N"):
+            print "/!\ You should answer by Y or N."
         data += "END OF FILE ****"
         writeFile(data)
         graph = convertClustersIntoGraph(kClusters,distanceMatrix,trimmedList,startSet)

@@ -14,11 +14,12 @@ def convertMatchingIntoFeatures(featuresVectorList,matchingNodes,sampleID):
 def distance1(sample1,sample2,dataArray,q):
     sample11 = convertFeaturesIntoMatching(dataArray[4],dataArray[5],sample1)
     sample22 = convertFeaturesIntoMatching(dataArray[4],dataArray[5],sample2)
-    samplesList = [x[0] for x in matchingNodes]
-    id1 = getCorrespondingID(sample11,samplesList)
-    id2 = getCorrespondingID(sample22,samplesList)
-    nodesList1 = matchingNodes[id1]
-    nodesList2 = matchingNodes[id2]
+    samplesList = [x[0] for x in dataArray[5]]
+    n = len(samplesList)
+    id1 = getCorrespondingID(sample11,samplesList,n)
+    id2 = getCorrespondingID(sample22,samplesList,n)
+    nodesList1 = dataArray[5][id1]
+    nodesList2 = dataArray[5][id2]
     common = [x for x in nodesList1 if mem(x,nodesList2)]
     return len(nodesList1) + len(nodesList2) - 2*len(common)
 
@@ -26,11 +27,12 @@ def distance1(sample1,sample2,dataArray,q):
 def distance2(sample1,sample2,dataArray,q):
     sample11 = convertFeaturesIntoMatching(dataArray[4],dataArray[5],sample1)
     sample22 = convertFeaturesIntoMatching(dataArray[4],dataArray[5],sample2)
-    samplesList = [x[0] for x in matchingNodes]
-    id1 = getCorrespondingID(sample11,samplesList)
-    id2 = getCorrespondingID(sample22,samplesList)
-    nodesList1 = matchingNodes[id1]
-    nodesList2 = matchingNodes[id2]
+    samplesList = [x[0] for x in dataArray[5]]
+    n = len(samplesList)
+    id1 = getCorrespondingID(sample11,samplesList,n)
+    id2 = getCorrespondingID(sample22,samplesList,n)
+    nodesList1 = dataArray[5][id1]
+    nodesList2 = dataArray[5][id2]
     nodeLCA1 = taxoLCA(paths,nodesList1)
     nodeLCA2 = taxoLCA(paths,nodesList2)
     #@dataArray[9] = taxoTree
