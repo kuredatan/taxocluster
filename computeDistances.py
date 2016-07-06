@@ -4,7 +4,7 @@ from taxoTree import TaxoTree
 
 #distance(@sample1,@sample2) = |number of nodes matched in @sample1| + |number of nodes matched in @sample2| - 2*|number of nodes matched in both samples|
 #@q is useless here
-def distance1(sample1,sample2,dataArray,q,n):
+def dist1(sample1,sample2,dataArray,q,n):
     n = len(dataArray[3])
     id1 = getCorrespondingID(sample1,dataArray[3],n)
     id2 = getCorrespondingID(sample2,dataArray[3],n)
@@ -14,7 +14,7 @@ def distance1(sample1,sample2,dataArray,q,n):
     return len(nodesList1) + len(nodesList2) - 2*len(common)
 
 #distance(@sample1,@sample2) = |L1| + |L2| - q*(|N1interM2| + |N2interM1|) - |M1interM2| (see README for notations)
-def distance2(sample1,sample2,dataArray,q,n):
+def dist2(sample1,sample2,dataArray,q,n):
     n = len(dataArray[3])
     id1 = getCorrespondingID(sample1,dataArray[3],n)
     id2 = getCorrespondingID(sample2,dataArray[3],n)

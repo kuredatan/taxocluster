@@ -13,7 +13,6 @@
 #Nodes and leaves are only distinguinshed by children=[]
 
 from parsingTree import parseTree
-from parsingMatrix import parseMatrix
 from misc import containsSpecie,mem,selectPath,compare
 
 class TaxoTree(object):
@@ -192,7 +191,7 @@ class TaxoTree(object):
     def addNode(self,paths,nodesList,ranks=["S","G","F","O","C","P","K","R"]):
         from time import time
         start = time()
-        sortedNodesList,pathsNodes,allBrotherList,hashBrotherList,hashFatherList,pathsNodesLength,nodesNumber = self.addNodePreProcess(paths,nodesList,samplesList,ranks)
+        sortedNodesList,pathsNodes,allBrotherList,hashBrotherList,hashFatherList,pathsNodesLength,nodesNumber = self.addNodePreProcess(paths,nodesList,ranks)
         finalTree = self.addNodeAux(paths,sortedNodesList,pathsNodes,allBrotherList,hashBrotherList,hashFatherList,pathsNodesLength,nodesNumber,ranks)
         end = time()
         print "TIME:",(end-start),"sec"

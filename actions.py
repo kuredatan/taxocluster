@@ -5,7 +5,7 @@ import re
 from writeOnFiles import writeFile
 from taxoTree import TaxoTree,printTree
 from misc import isInDatabase,partitionSampleByMetadatumValue,cleanClusters,trimList,convertClustersIntoGraph
-from computeDistance import dist1,dist2
+from computeDistances import dist1,dist2
 from dotModule import graphNO
 from compareClusters import compareCluster,compareCenters
  

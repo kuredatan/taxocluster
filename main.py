@@ -32,7 +32,7 @@ def main():
         s.exit(0)
     print "-- End of parsing\n"
     print "/!\ Constructing the whole taxonomic tree..."
-    taxoTree = TaxoTree("Root").addNodes(paths,nodesList)
+    taxoTree = TaxoTree("Root").addNode(paths,nodesListTree)
     print "/!\ Constructing the features vectors..."
     try:
         sampleIDListCopy = [sample for sample in sampleIDList]
