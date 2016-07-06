@@ -16,11 +16,11 @@ def getNextRank(rank,ranks=["R","K","P","C","O","F","G","S"]):
     while i < n and not (rank == ranks[i]):
         i += 1
     if (i == n):
-        print "\n/!\ ERROR: Wrong phylogeny (1). Please change the ranks array in featuresVector.py."
+        print "\n/!\ ERROR: Wrong phylogeny (1). Please change the ranks array in featuresVector.py:",rank,"."
         raise ValueError
     elif (i == n-1):
-        #print "\n/!\ ERROR: Wrong phylogeny (2). Please change the ranks array in featuresVector.py."
-        #raise ValueError
+        print "\n/!\ ERROR: Wrong phylogeny (2). Please change the ranks array in featuresVector.py."
+        raise ValueError
         return ranks[i]
     else:
         return ranks[i+1]
@@ -61,7 +61,7 @@ def getNodesList(idSequences,phyloSequences):
     nodesList = []
     for identName in idSequences:
         if not len(identName) == 2:
-            print "\n/!\ ERROR: Incorrect idSequences formatting."
+            print "\n/!\ ERROR: Incorrect idSequences formatting:",len(identName),identName,"."
             raise ValueError
         node = getNodeAssociated(identName[0],idSequences,phyloSequences)
         if not node:

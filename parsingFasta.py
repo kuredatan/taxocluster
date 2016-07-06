@@ -36,7 +36,7 @@ def recomposeNameList(nameList):
 
 #Returns the list of pairs (identifiers of sequence,name of sequence) @idSequences in the file
 #and the array @phyloSequences such as @phyloSequences[i] is the phylogeny of @idSequences[i]
-def parseFasta(filename):
+def parseFasta2(filename):
     start = time()
     idSequences = []
     phyloSequences = []
@@ -77,8 +77,8 @@ def parseFasta(filename):
     print "TIME .fasta:",(end-start)
     return idSequences[-1],phyloSequences[-1]
 
-#Approximately as fast as parseFasta
-def parseFastaCharByChar(filename):
+#Approximately as fast as parseFasta2
+def parseFasta(filename):
     start = time()
     idSequences = []
     phyloSequences = []

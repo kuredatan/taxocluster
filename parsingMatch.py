@@ -25,13 +25,16 @@ def parseMatch(filename):
 
 #Returns the list @allMatches such as @allMatches[i] is a pair (identifier of patient,list of identifiers of sequences matching a read in this patient) 
 def parseAllMatch(filenames):
+    n = len(filenames)
+    number = 1
     allMatches = []
     start = time()
     for filename in filenames:
         try:
-            print filename
+            print number,"/",n
             if filename:
                 allMatches.append(parseMatch(filename))
+            number += 1
         except IOError:
             print "\nERROR: Maybe the filename",filename,".match does not exist in \"meta/matches\" folder\n"
             s.exit(0)

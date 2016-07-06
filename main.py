@@ -20,7 +20,8 @@ def main():
     print "/!\ Data getting parsed..."
     try:
         samplesInfoList,infoList = parseInfo(iMatrix)
-        sampleIDList = getSampleIDList(samplesInfoList)
+        samplesInfoList = samplesInfoList[4:]
+        sampleIDList = getSampleIDList(samplesInfoList)[:4]
     except IOError:
         print "\nERROR: Maybe the filename",iMatrix,".csv does not exist in \"meta\" folder.\n"
         s.exit(0)
