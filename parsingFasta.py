@@ -1,6 +1,7 @@
 from misc import sanitize
 from time import time
 import subprocess as sb
+import mmap as m
 
 import re
 
@@ -35,6 +36,48 @@ def recomposeNameList(nameList):
             lsClean.append(name)
     return lsClean
 
+
+def parseFasta2(filename):
+    start = time()
+    idSequences = []
+    phyloSequences = []
+    sb.call("sed 'n;d' meta/" + filename + ".fasta > meta/newfile.fasta",shell=True)
+    with open("meta/newfile.fasta","rb") as fo:
+        fd = m.mmap(fo.fileno(), 0, prot=m.PROT_READ)
+        line = fd.readline()
+        while line:
+            currPhylogeny = []
+            #deletes > part
+            lsDirty = line[1:].split(" ")
+            identifier = sanitize(lsDirty[0])
+            #from name...
+            lsDirty = lsDirty[2:]
+            name = ""
+            i = 0
+            n = len(lsDirty)
+            while lsDirty and not phylogeny.match(lsDirty[i]):
+                name += sanitize(lsDirty[i]) + " "
+                i += 1
+            #deletes last white space
+            name = name[:-1]
+            #deletes "otu" part
+            lsDirty = recomposeNameList(lsDirty[i:-1])
+            #gets back phylogeny
+            for phylo in lsDirty:
+                bact = getBackBacteria(sanitize(phylo).split(";")[0])
+                #if bact != ""
+                if bact:
+                    currPhylogeny.append(bact)
+            idSequences.append((identifier,name))
+            phyloSequences.append(currPhylogeny)
+            line = fd.readline()
+    fd.close()
+    sb.call("rm -f meta/newfile.fasta",shell=True)
+    end = time()
+    print "TIME .fasta:",(end-start)
+    return idSequences[0],phyloSequences[0]
+
+
 #Returns the list of pairs (identifiers of sequence,name of sequence) @idSequences in the file
 #and the array @phyloSequences such as @phyloSequences[i] is the phylogeny of @idSequences[i]
 def parseFasta(filename):
@@ -43,7 +86,8 @@ def parseFasta(filename):
     phyloSequences = []
     sb.call("sed 'n;d' meta/" + filename + ".fasta > meta/newfile.fasta",shell=True)
     fo = open("meta/newfile.fasta","r")
-    for line in fo:
+    r = fo.readlines()
+    for line in r:
         #the FASTA file is such as:
         #first line: >identifier integer.integer name rank__name;rank__name; ...; otu_integer [phylogeny]
         #second line: sequence associated to this identifier
