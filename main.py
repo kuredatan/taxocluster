@@ -7,6 +7,7 @@ from actions import clusteringAct,printTreeAct,parseList
 from featuresVector import featuresCreate
 from misc import getSampleIDList
 
+#/!\ The list of samples ID is supposed to be the same as the list of .match files! Each .match file must correspond to one single sample!
 def main():
     tTree = raw_input("Write down the .tree file name of the taxonomic tree in the folder \"meta\" [ without the extension .tree ]\n")
     if (tTree == ""):
@@ -20,8 +21,7 @@ def main():
     print "/!\ Data getting parsed..."
     try:
         samplesInfoList,infoList = parseInfo(iMatrix)
-        samplesInfoList = samplesInfoList[4:]
-        sampleIDList = getSampleIDList(samplesInfoList)[:4]
+        filenames = [sample[0] for sample in samplesInfoList]
     except IOError:
         print "\nERROR: Maybe the filename",iMatrix,".csv does not exist in \"meta\" folder.\n"
         s.exit(0)
@@ -36,14 +36,13 @@ def main():
     taxoTree = TaxoTree("Root").addNode(paths,nodesListTree)
     print "/!\ Constructing the features vectors..."
     try:
-        sampleIDListCopy = [sample for sample in sampleIDList]
-        featuresVectorList,matchingNodes,nodesList = featuresCreate(samplesInfoList,infoList,sampleIDListCopy,fastaFileName)
+        matchingNodes,idSequences = featuresCreate(filenames,fastaFileName)
     except ValueError:
         print "/!\ ERROR: Please look at the line above."
         print "/!\ ERROR: If the line above is blank, it may be an uncatched ValueError.\n"
         s.exit(0)
     print "-- End of construction\n"
-    dataArray = [samplesInfoList,infoList,nodesList,sampleIDList,featuresVectorList,matchingNodes,paths,n,nodesListTree,taxoTree]
+    dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree]
     answer = ""
     while not ((answer == "exit") or (answer == "exit()") or (answer == "quit")):
         try:
@@ -64,5 +63,4 @@ def main():
                 raise ValueError
         except ValueError:
             print "/!\ ERROR: Please look at the line above."
-            print "/!\ ERROR: If the line above is blank, it may be an uncatched ValueError.\n"
-    #return dataArray    
+            print "/!\ ERROR: If the line above is blank, it may be an uncatched ValueError.\n"   

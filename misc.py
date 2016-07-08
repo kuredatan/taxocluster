@@ -36,7 +36,6 @@ def convertClustersIntoGraph(kClusters,distanceMatrix,trimmedList,startingSet):
                 graph[i1][i2] = (cluster[i1],cluster[i2],1,distanceMatrix[id1][id2])
     return graph
 
-#Deleting one quarter of each cluster
 def cleanClusters(clusters,distanceInCluster):
     k = len(clusters)
     newClusters = []
@@ -44,7 +43,7 @@ def cleanClusters(clusters,distanceInCluster):
         cluster = clusters.pop()
         n = len(cluster)
         distanceList = sorted(distanceInCluster.pop(),key=lambda x: x[2])
-        distanceQuartile = distanceList[n/4:]
+        distanceQuartile = distanceList[:3/4*n]
         newCluster = []
         for distancePair in distanceQuartile:
             if not mem(distancePair[0],newCluster):
@@ -207,8 +206,9 @@ def sanitize(name):
             sLs.append(l)
     for l in sLs[:-1]:
         sName = sName + l + " "
-    sName = sName + sLs[-1]
-    return sName.split("\n")[0]
+    if not (sLs[-1] == "" or sLs[-1] == "(class)" or sLs[-1] == "\n" or sLs[-1] == "#"):
+        sName = sName + sLs[-1]
+    return sName
 
 #is member function
 def mem(x,ls):
