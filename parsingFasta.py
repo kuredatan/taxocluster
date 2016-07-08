@@ -3,6 +3,7 @@ from misc import sanitize
 from time import time
 import subprocess as sb
 import re
+import mmap
 
 integer = re.compile("[0-9]+")
 phylogeny = re.compile("([r]|[k]|[p]|[c]|[o]|[f]|[g]|[s])__([a-z]|[A-Z]|[" "]|[0-9])+")
@@ -41,86 +42,84 @@ def parseFasta2(filename):
     idSequences = []
     phyloSequences = []
     sb.call("sed 'n;d' meta/" + filename + ".fasta > meta/newfile.fasta",shell=True)
-    fo = open("meta/newfile.fasta","r")
-    r = fo.readlines()
-    for line in r:
-        #the FASTA file is such as:
-        #first line: >identifier integer.integer name rank__name;rank__name; ...; otu_integer [phylogeny]
-        #second line: sequence associated to this identifier
-        currPhylogeny = []
-        #deletes > part
-        lsDirty = line[1:].split(" ")
-        identifier = sanitize(lsDirty[0])
-        #from name...
-        lsDirty = lsDirty[2:]
-        name = ""
-        i = 0
-        n = len(lsDirty)
-        while lsDirty and not phylogeny.match(lsDirty[i]):
-            name += sanitize(lsDirty[i]) + " "
-            i += 1
-        #deletes last white space
-        name = name[:-1]
-        #deletes "otu" part
-        lsDirty = recomposeNameList(lsDirty[i:-1])
-        #gets back phylogeny
-        for phylo in lsDirty:
-            bact = getBackBacteria(sanitize(phylo).split(";")[0])
-            #if bact != ""
-            if bact:
-                currPhylogeny.append(bact)
-        idSequences.append((identifier,name))
-        phyloSequences.append(currPhylogeny)
-    fo.close()
+    with open("meta/newfile.fasta","r") as fo:
+        #r = fo.readlines()
+        for line in fo:
+            #the FASTA file is such as:
+            #first line: >identifier integer.integer name rank__name;rank__name; ...; otu_integer [phylogeny]
+            #second line: sequence associated to this identifier
+            currPhylogeny = []
+            #deletes > part
+            lsDirty = line[1:].split(" ")
+            identifier = sanitize(lsDirty[0])
+            #from name...
+            lsDirty = lsDirty[2:]
+            name = ""
+            i = 0
+            n = len(lsDirty)
+            while lsDirty and not phylogeny.match(lsDirty[i]):
+                name += sanitize(lsDirty[i]) + " "
+                i += 1
+            #deletes last white space
+            name = name[:-1]
+            #deletes "otu" part
+            lsDirty = recomposeNameList(lsDirty[i:-1])
+            #gets back phylogeny
+            for phylo in lsDirty:
+                bact = getBackBacteria(sanitize(phylo).split(";")[0])
+                #if bact != ""
+                if bact:
+                    currPhylogeny.append(bact)
+            idSequences.append((identifier,name))
+            phyloSequences.append(currPhylogeny)
     sb.call("rm -f meta/newfile.fasta",shell=True)
     end = time()
     print "TIME .fasta:",(end-start)
-    return idSequences[-1],phyloSequences[-1]
+    #return idSequences[-1],phyloSequences[-1]
 
-#Approximately as fast as parseFasta2
 def parseFasta(filename):
     start = time()
     idSequences = []
     phyloSequences = []
     sb.call("sed 'n;d' meta/" + filename + ".fasta > meta/newfile.fasta",shell=True)
-    fo = open("meta/newfile.fasta","r")
-    r = fo.readlines()
-    for line in r:
-        #the FASTA file is such as:
-        #LINE: >identifier integer.integer name rank__name;rank__name; ...; otu_integer [phylogeny]
-        #deletes > part
-        index = 1
-        currPhylogeny = []
-        indexEnd = 1
-        while not line[indexEnd] == " ":
-            indexEnd += 1
-        #Gets identifier
-        identifier = sanitize(line[index:indexEnd])
-        index = indexEnd+1
-        #jumping over "integer.integer" section
-        while line[index] and not line[index] == " ":
-            index += 1
-        index += 1
-        indexEnd = index + 0
-        while not line[indexEnd] == "_":
-            indexEnd += 1
-        indexEnd -= 3
-        #Gets name
-        name = sanitize(line[index:indexEnd+1])
-        index = indexEnd + 2
-        indexEnd = index + 0
-        while not line[index:index + 3] == "otu":
-            indexEnd = index + 0
-            while not line[indexEnd] == ";":
+    with open("meta/newfile.fasta","r") as fo:
+        #f = mmap.mmap(fo.fileno(),0,prot=mmap.PROT_READ)
+        #r = fo.readlines()
+        for line in fo:
+            #the FASTA file is such as:
+            #LINE: >identifier integer.integer name rank__name;rank__name; ...; otu_integer [phylogeny]
+            #deletes > part
+            index = 1
+            currPhylogeny = []
+            indexEnd = 1
+            while not line[indexEnd] == " ":
                 indexEnd += 1
-            bact = getBackBacteria(sanitize(line[index:indexEnd].split("(class)")[0]))
-            if bact:
-                currPhylogeny.append(bact)
+            #Gets identifier
+            identifier = sanitize(line[index:indexEnd])
+            index = indexEnd+1
+            #jumping over "integer.integer" section
+            while line[index] and not line[index] == " ":
+                index += 1
+            index += 1
+            indexEnd = index + 0
+            while not line[indexEnd] == "_":
+                indexEnd += 1
+            indexEnd -= 3
+            #Gets name
+            name = sanitize(line[index:indexEnd+1])
             index = indexEnd + 2
-        idSequences.append((identifier,name))
-        phyloSequences.append(currPhylogeny)
-    fo.close()
+            indexEnd = index + 0
+            while not line[index:index + 3] == "otu":
+                indexEnd = index + 0
+                while not line[indexEnd] == ";":
+                    indexEnd += 1
+                bact = getBackBacteria(sanitize(line[index:indexEnd].split("(class)")[0]))
+                if bact:
+                    currPhylogeny.append(bact)
+                index = indexEnd + 2
+            idSequences.append((identifier,name))
+            phyloSequences.append(currPhylogeny)
     sb.call("rm -f meta/newfile.fasta",shell=True)
     end = time()
     print "TIME .fasta:",(end-start)
-    return idSequences,phyloSequences
+    #return idSequences,phyloSequences

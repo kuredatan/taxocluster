@@ -16,8 +16,9 @@ def getNextRank(rank,ranks=["R","K","P","C","O","F","G","S"]):
     while i < n and not (rank == ranks[i]):
         i += 1
     if (i == n):
-        print "\n/!\ ERROR: Wrong phylogeny (1). Please change the ranks array in featuresVector.py:",rank,"."
-        raise ValueError
+        #print "\n/!\ ERROR: Wrong phylogeny (1). Please change the ranks array in featuresVector.py:",rank,"."
+        #raise ValueError
+        return ""
     elif (i == n-1):
         print "\n/!\ ERROR: Wrong phylogeny (2). Please change the ranks array in featuresVector.py."
         raise ValueError
@@ -48,6 +49,8 @@ def getNodeAssociated(sequenceID,idSequences,phyloSequences):
         raise ValueError
     fatherRank = phyloSequences[index][-1][1]
     rank = getNextRank(fatherRank)
+    if not rank:
+        return ""
     if not (len(idSequences[index]) == 2):
         print "\n/!\ ERROR: [BUG] [featuresVector/getNodeAssociated] Wrong pair length:",len(idSequences[index]),"."
         raise ValueError
@@ -87,6 +90,7 @@ def getMatchingNodes(allMatches,nodesList,idSequences):
             index = getCorrespondingID(sequenceID,idSequences)
             matchingThisSampleNodes.append(nodesList[index])
         matchingNodes.append((sampleID,matchingThisSampleNodes))
+        print "done for",sampleID
     return matchingNodes
         
 #Returns @featuresVectorList and @matchingNodes
@@ -115,7 +119,9 @@ def featuresCreate(sampleInfoList,infoList,filenames,fastaFileName):
         for i in range(1,n):
             metadataList.append((infoList[i],sample[i]))
         featuresVectorList.append((sample[0],metadataList))
+    print "featuresVectorList done"
     #--------------CONSTRUCTING @matchingNodes
     nodesList = getNodesList(idSequences,phyloSequences)
+    print "nodesList done"
     matchingNodes = getMatchingNodes(allMatches,nodesList,idSequences)
     return featuresVectorList,matchingNodes,nodesList
