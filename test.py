@@ -1,8 +1,8 @@
-import time
+from time import time 
 import mmap
-
+    
 def readIt(filename):
-    start = time.time()
+    start = time()
     with open(filename,"r+b") as fo:
         m = mmap.mmap(fo.fileno(),0,prot=mmap.PROT_READ)
         #r = fo.readlines()
@@ -14,7 +14,7 @@ def readIt(filename):
             for _ in range(n):
                 ()
             #line = m.readline()
-    end = time.time()
+    end = time()
     print (end-start)
 
 def getPathMatch(filename):
@@ -30,7 +30,7 @@ def test(filename,fasta=False):
         readIt(getPathMatch(filename))
 
 def testList(filesList):
-    start = time.time()
+    start = time()
     foList = []
     for filename in filesList:
         try:
@@ -58,7 +58,7 @@ def testList(filesList):
         i += 1
     for fo in foList:
         fo.close()
-    end = time.time()
+    end = time()
     print (end-start),i
         
 def testOnlyFasta():

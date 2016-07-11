@@ -1,5 +1,5 @@
 from __future__ import division
-from misc import getCorrespondingID,mem
+from misc import mem
 from normalization import normalizeList
 #Tools to compare clusters produced by K-Means Algorithm
 
@@ -7,20 +7,26 @@ from normalization import normalizeList
 #Returns |common samples between the two clusters|/|samples of the two clusters|
 def compareCluster(cluster1,cluster2):
     commonSamples = [sample for sample in cluster1 if mem(sample,cluster2)]
-    return len(commonSamples)/(len(cluster1) + len(cluster2) - len(commonSamples))
+    cLength = len(commonSamples)
+    return cLength/(len(cluster1) + len(cluster2) - cLength)
 
 #compares the distance between the two centers of the corresponding clusters relatively to the distances between each pair of clusters
-def compareCenters(meanSamples,clusters,totalElementSet,distanceMatrix):
+#@distanceDict is a dictionary of (key=(sample1,sample2),value=distance between sample1 and sample2)
+#@k is the number of clusters
+#Returns a coefficient between 0 and 1. The more it is close to 0, the more the two clusterings are alike.
+def compareCenters(meanSamples,distanceDict,k):
     distCenterList = []
-    k = len(clusters)
-    n = len(totalElementSet)
+    k = len(meanSamples)
     for i in range(k):
-        idMean = meanSamples[i][1]
-        idCenCluster = getCorrespondingID(clusters[i],totalElementSet,n)
-        distCenterList.append(distanceMatrix[idMean][idCenCluster])
+        for j in range(k):
+            if not (i == j):
+                distCenterList.append(distanceDict.get((meanSamples[i],meanSamples[j])))
     distCenterList = normalizeList(distCenterList)
+    maxDistance = 0
     score = 0
     for distance in distCenterList:
+        if distance > maxDistance:
+            maxDistance = distance + 0
         score += distance
-    score = score/k
+    score = score/(k*(k-1)*distance)
     return score

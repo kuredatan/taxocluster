@@ -9,7 +9,7 @@ from computeDistances import dist1,dist2
 from dotModule import graphNO
 from compareClusters import compareCluster,compareCenters
  
-#@dataArray = [samplesInfoList,infoList,nodesList,sampleIDList,featuresVectorList,matchingNodes,paths,n,nodesListTree,taxoTree]
+#@dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree]
 
 integer = re.compile("[0-9]+")
 
@@ -82,7 +82,7 @@ def sanitizeNode(stringNode):
     return "(" + stringNode[0] + "," + stringNode[1] + ")"
 
 #____________________________________________________________________________
-#@dataArray = [samplesInfoList,infoList,nodesList,sampleIDList,featuresVectorList,matchingNodes,paths,n,nodesListTree,taxoTree]
+#@dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree]
 
 #Actions
 #Improvement will include a whole list of metadata to cluster
@@ -98,9 +98,8 @@ def clusteringAct(dataArray):
     kClusters = [[cluster[0]] for cluster in clusters]
     trimmedList = trimList(dataArray[3],startSet)
     print "/!\ Clustering with the first distance..."
-    #@distanceInClusters is a list of lists of (sample1,sample2,distance)
-    #where sample1 and sample2 belong to the same cluster
-    kClusters,_,_,_,distanceInClusters = kMeans(trimmedList,numberClass,kClusters,startSet,dist1,dataArray)
+    #@distanceInClusters is a list of lists of (sample,sum of all distances from this sample to others samples in the same cluster)
+    kClusters,_,distanceDict,distanceInClusters = kMeans(trimmedList,numberClass,kClusters,startSet,dist1,dataArray)
     print "-- End of first clustering --"
     #Deletes samples in cluster that are too far from the others
     kClusters = cleanClusters(kClusters,distanceInClusters)
@@ -108,15 +107,15 @@ def clusteringAct(dataArray):
     for cluster in kClusters:
         sampleSet += cluster
     startSet = [cluster[0] for cluster in kClusters]
-    kClusters = [[cluster[0]] for cluster in kClusters]
+    kClusters = [[start] for start in startSet]
     trimmedList = trimList(sampleSet,startSet)
     q = int(sanitize(raw_input("Choose parameter q between 0 and 1.\n")))
     if q < 0 or q > 1:
         print "\n/!\ ERROR: You should choose q between 0 and 1."
         raise ValueError
     print "/!\ Clustering with the second distance..."
-    #@distanceMatrix is the distance matrix between each pair of samples
-    kClusters,meanSamples,totalElementSet,distanceMatrix,_ = kMeans(trimmedList,numberClass,kClusters,startSet,dist2,dataArray,q)
+    #@distanceMatrix is the distance dictionary (key=(sample1,sample2),value=distance between sample1 and sample2)
+    kClusters,meanSamples,distanceDict,_ = kMeans(trimmedList,numberClass,kClusters,startSet,dist2,dataArray,q)
     print "-- End of second clustering --"
     print "Printing the",numberClass,"clusters"
     i = 1
@@ -144,7 +143,7 @@ def clusteringAct(dataArray):
         compareClusterScore += compareCluster(cl1,cl2)
     compareClusterScore = compareClusterScore/k
     #Score by using second method of comparison
-    compareCentersScore = compareCenters(meanSamples,clusters,totalElementSet,distanceMatrix)
+    compareCentersScore = compareCenters(meanSamples,distanceDict,numberClass)
     print "Compare clusters score is:",compareClusterScore,"."
     print "Compare centers score is:",compareCentersScore,"."
     answer = raw_input("Do you want to save the results? Y/N\n")
@@ -165,7 +164,7 @@ def clusteringAct(dataArray):
         data += "\n\nCompare centers score is:" + str(compareCentersScore)
         data += "END OF FILE ****"
         writeFile(data)
-        graph = convertClustersIntoGraph(kClusters,distanceMatrix,trimmedList,startSet)
+        graph = convertClustersIntoGraph(kClusters,distanceDict,trimmedList,startSet)
         graphNO(graph)
     elif not (answer == "N"):
         print "/!\ You should answer by Y or N."

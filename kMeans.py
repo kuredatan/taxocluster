@@ -1,7 +1,7 @@
 from __future__ import division
 #Implements K-means algorithm
 import numpy as np
-from misc import inf,getCorrespondingID,mem
+from misc import inf,mem
 from random import randint
 from copy import deepcopy
 
@@ -9,7 +9,7 @@ from copy import deepcopy
 #@elementSet is the set of elements to cluster
 #@k is the number of clusters required (it will likely be the number of clusters obtained by partitionning the set of elements by the values of metadata)
 #@kClusters is a list of k elements that will represent the means of each cluster (these elements will be likely be k elements which values of metadata are known)
-#Returns the k clusters, the distance matrix, the list of (sample1,sample2,distance between sample1 and sample2) where sample1 and sample2 belong to the same cluster
+#Returns the k clusters, the distance dictionary (key=(sample1,sample2),value=distance between sample1 and sample2)
 
 #Clusters are ordered
 def shouldStop(kClusters,previouskClusters,k):
@@ -20,45 +20,24 @@ def shouldStop(kClusters,previouskClusters,k):
         i += 1
     return endIt
 
-def constructDistanceInCluster(cluster,distanceMatrix,totalElementSet,n):
+#The mean sample of a cluster is the one that minimizes the distance to the other samples
+def updateMean(meanSample,cluster,distanceDict):
     distanceInCluster = []
-    m = len(cluster)
-    idList = [None]*m
-    for i in range(m):
-        for j in range(i+1,m):
-            idi = idList[i] or getCorrespondingID(cluster[i],totalElementSet,n)
-            idj = idList[j] or getCorrespondingID(cluster[j],totalElementSet,n)
-            distanceInCluster.append((cluster[i],cluster[j],distanceMatrix[idi][idj]))
-    return distanceInCluster
-
-def updateMean(meanSample,cluster,distanceMatrix,totalElementSet,n):
-    meanDistance = 0
-    nodes = 0
-    m = len(cluster)
-    if not m:
+    minDistance = inf
+    currMean = 0
+    if not cluster:
         print "\n/!\ ERROR: Empty cluster."
         raise ValueError
-    for i in range(m):
-        id1 = getCorrespondingID(cluster[i],totalElementSet,n)
-        for j in range(i+1,m):
-            id2 = getCorrespondingID(cluster[j],totalElementSet,n)
-            nodes += 1
-            meanDistance += distanceMatrix[id1][id2]
-    meanDistance = meanDistance/nodes
-    currMean = cluster[0]
-    idMean = getCorrespondingID(currMean,totalElementSet,n)
-    maxNodesAtMeanDistance = len([sample for sample in cluster[1:] if distanceMatrix[getCorrespondingID(sample,totalElementSet,n)][idMean] <= meanDistance])
-    for sample1 in cluster[1:]:
-        id1 = getCorrespondingID(sample1,totalElementSet,n)
-        numberNodesAtMeanDistance = len([sample for sample in cluster if not (sample == sample1) and distanceMatrix[getCorrespondingID(sample,totalElementSet,n)][id1] <= meanDistance])
-        if numberNodesAtMeanDistance > maxNodesAtMeanDistance:
-            currMean = sample1
-            idMean = id1
-            maxNodesAtMeanDistance = numberNodesAtMeanDistance
-    return (currMean,idMean)
-
-def dist(a,b,c):
-    return (ord(a)+ord(b))/2+ord(a)-ord(b)
+    for samplei in cluster:
+        distanceToThisSample = 0
+        for samplej in cluster:
+            if not (samplej == samplei):
+                distanceToThisSample += distanceDict.get((samplei,samplej))
+        distanceInCluster.append((samplei,distanceToThisSample))
+        if distanceToThisSample < minDistance:
+            minDistance = distanceToThisSample + 0
+            currMean = samplei
+    return currMean,distanceInCluster
 
 #@startSet solves the problem of initialization in K-Means Algorithm
 def kMeans(elementSet,k,kClusters,startSet,dist,dataArray,q=0.5):
@@ -67,39 +46,39 @@ def kMeans(elementSet,k,kClusters,startSet,dist,dataArray,q=0.5):
     if not (n == len(dataArray[3])):
         print "\n/!\ ERROR: Different lengths of set of samples",len(dataArray[3]),n,"."
         raise ValueError
-    meanSamples = [(x[0],getCorrespondingID(x[0],totalElementSet,n)) for x in kClusters]
-    #Computes the distance matrix
-    distanceMatrix = np.zeros((n,n))
+    meanSamples = [x for x in startSet]
+    #Computes the distance dictionary (key=(sample1,sample2),distance between sample1 and sample2)
+    distanceDict = dict.fromkeys((None,None))
     for i1 in range(n):
         #dist is symmetric
         for i2 in range(i1+1,n):
-            s = dist(totalElementSet[i1],totalElementSet[i2],dataArray,q,n)
-            distanceMatrix[i1][i2] = s
-            distanceMatrix[i2][i1] = s
+            s = dist(totalElementSet[i1],totalElementSet[i2],dataArray,q)
+            distanceDict.setdefault((totalElementSet[i1],totalElementSet[i2]),s)
+            distanceDict.setdefault((totalElementSet[i2],totalElementSet[i1]),s)
     endIt = False
     previouskClusters = deepcopy(kClusters)
-    iteration = 0
+    #currAssignments[i] is the index of the cluster where totalElementSet[i] currently is
+    currAssignments = [None]*(n-k)
+    #distanceInClusters is a list of lists of (sample,sum of all distances from this samples to any other sample in the same cluster) pairs
+    distanceInClusters = []*k
     while not endIt:
-        for i in range(n-k):
-            id1 = getCorrespondingID(elementSet[i],totalElementSet,n)
+        for unassignedElement in range(n-k):
             minDist = inf
             minCluster = None
-            for p in range(k):
-                meanID = meanSamples[p][1]
-                distance = distanceMatrix[meanID][id1]
+            for clusterIndex in range(k):
+                distance = distanceDict.get(meanSamples[clusterIndex],totalElementSet[unassignedElement])
                 if distance < minDist:
                     minDist = distance
-                    minCluster = p
-            #Deleting element from another cluster
-            for clusterID in range(k):
-                if mem(elementSet[i],kClusters[clusterID]):
-                    kClusters[clusterID] = [sample for sample in kClusters[clusterID] if not (sample == elementSet[i])]
-            kClusters[minCluster].append(elementSet[i])
-            meanSamples[minCluster] = updateMean(meanSamples[minCluster],kClusters[minCluster],distanceMatrix,totalElementSet,n)
+                    minCluster = clusterIndex
+            #Deletes the element from another cluster, if it exists
+            currAssign = currAssignments[i]
+            #Meaning the element has already been assigned to another cluster
+            if not (currAssign == minCluster) and currAssign:
+                kClusters[currAssign] = [x for x in kClusters[currAssign] if not (x == totalElementSet[i])]
+            currAssignments[i] = minCluster
+            kClusters[minCluster].append(totalElementSet[i])
+            meanSamples[minCluster],distanceInCluster = updateMean(meanSamples[minCluster],kClusters[minCluster],distanceDict)
+            distanceInClusters[minCluster] = distanceInCluster
         endIt = shouldStop(kClusters,previouskClusters,k)
         previouskClusters = deepcopy(kClusters)
-        iteration += 1
-    distanceInClusters = []
-    for cluster in kClusters:
-        distanceInClusters.append(constructDistanceInCluster(cluster,distanceMatrix,totalElementSet,n))
-    return kClusters,meanSamples,totalElementSet,distanceMatrix,distanceInClusters
+    return kClusters,meanSamples,distanceDict,distanceInClusters

@@ -4,52 +4,48 @@ import re
 
 from writeOnFiles import writeFile
 
-inf=100000000000000
+inf = 100000000000000
 
 integer = re.compile("[0-9]+")
 
-#@n = len(initList)
-def getCorrespondingID(element,initList,n):
-    if not (len(initList) == n):
-        print "\n/!\ ERROR: n should be the length of the list:",n,len(initList),"."
-        raise ValueError
+def getCorrespondingID(element,elementList,listLength):
     i = 0
-    while i < n and not (element == initList[i]):
+    while i < listLength and not (element == elementList):
         i += 1
-    if (i == n):
-        print "\n/!\ Element",element,"not found in list",initList,"."
+    if (i == listLength):
+        print "\n/!\ ERROR: ",element,"not in list."
         raise ValueError
     return i
 
-def convertClustersIntoGraph(kClusters,distanceMatrix,trimmedList,startingSet):
-    n,_ = np.shape(distanceMatrix)
-    elementSet = trimmedList + startingSet
+#converts list of clusters @kClusters into a graph (adjacency matrix)
+#@distanceDict is a dictionary (key=(sample1,sample2),value=distance)
+def convertClustersIntoGraph(kClusters,distanceDict,trimmedList,startingSet):
+    elementList = trimmedList + startingSet
+    n = len(elementList)
     #adjacency matrix
-    graph = [ [("s1","s2",0,inf)]*n for _ in range(n) ]
+    graph = [[] * n] * n 
     for cluster in kClusters:
         m = len(cluster)
-        #Non-oriented graph
         for i1 in range(m):
             for i2 in range(i1+1,m):
-                id1 = getCorrespondingID(cluster[i1],elementSet)
-                id2 = getCorrespondingID(cluster[i2],elementSet)
-                graph[i1][i2] = (cluster[i1],cluster[i2],1,distanceMatrix[id1][id2])
+                id1 = getCorrespondingID(cluster[i1],elementList,n)
+                id2 = getCorrespondingID(cluster[i2],elementList,n)
+                graph[i1][i2] = (cluster[i1],cluster[i2],1,distanceDict.get((samplei,samplej)))
     return graph
 
-def cleanClusters(clusters,distanceInCluster):
+def cleanClusters(clusters,distanceInClusters):
     k = len(clusters)
+    clustersCopy = [cluster for cluster in clusters]
     newClusters = []
     for _ in range(k):
-        cluster = clusters.pop()
+        cluster = clustersCopy.pop()
         n = len(cluster)
-        distanceList = sorted(distanceInCluster.pop(),key=lambda x: x[2])
+        #distanceList is a list of (sample,sum of distances) pairs
+        distanceList = sorted(distanceInClusters.pop(),key=lambda x: x[2])
         distanceQuartile = distanceList[:3/4*n]
         newCluster = []
-        for distancePair in distanceQuartile:
-            if not mem(distancePair[0],newCluster):
-                newCluster.append(distancePair[0])
-            if not mem(distancePair[1],newCluster):
-                newCluster.append(distancePair[1])
+        for pair in distanceQuartile:
+                newCluster.append(pair[0])
         newClusters.append(newCluster)
     return newClusters
             
@@ -63,18 +59,6 @@ def truncate(number, digitNumber):
         return int(integer)
     else:
         return float(integer + "." + decimal[:digitNumber])
-
-#gets maximum and minimum of an array with pairs (name,number)
-def getMaxMin(array):
-    n = len(array)
-    mini = array[0]
-    maxi = array[0]
-    for i in range(1,n):
-        if array[i] > maxi:
-            maxi = array[i]
-        elif array[i] < mini:
-            mini = array[i]
-    return maxi,mini
 
 #Returns a list containing elements of list1 that are not elements of list2
 #If the elements in lists are tuples, it will sorted using lexigraphical order with suitable order for each projection
@@ -160,29 +144,6 @@ def takeNodesInTree(tree,sampleNameList):
             numberNodes += 1
         queue += node.children
     return sample,numberTotalAssignments,numberNodes
-
-#Returns boolean and sampleHitList if true
-def memAndSampleHitList(x,nodeList):
-    sampleHitList = []
-    nodeListCopy = []
-    for nd in nodeList:
-        nodeListCopy.append(nd)
-    #While @nodeList is not empty and @sampleHitList is empty
-    while nodeListCopy:
-        node = nodeListCopy.pop()
-        if (x[0] == node[0] and x[1] == node[1]):
-            return True,node[2]
-    return False,[]
-
-#Gets sample IDs from the data matrix
-#/!\ Some of the samples may be appear in the data matrix!
-def getSampleIDList(samplesList):
-    sampleIDList = []
-    for sample in samplesList:
-        if not mem(sample[0],sampleIDList):
-            sampleIDList.append(sample[0])
-    #Sorts sample IDs in alphabetical order
-    return sorted(sampleIDList,key=lambda x:x)
 
 #For sorting lists of nodes (name,rank) by decreasing order S > G > F > O > C > P > K > R. Returns 1 if rank1 => rank2, -1 if rank1 < rank2
 #You can modify the ranks and the order by modifying the default rank array

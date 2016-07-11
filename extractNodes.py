@@ -1,36 +1,42 @@
-from misc import getCorrespondingID,mem
+from misc import mem
 
-#@dataArray = [samplesInfoList,infoList,nodesList,sampleIDList,featuresVectorList,matchingNodes,paths,n,nodesListTree,taxoTree]
-def isCommon(node,k,nodesListList):
+#@dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree]
+
+#@node is a (name,rank) pair
+#@nodesListList is a list of lists of (name,rank) pairs
+def isCommon(node,nodesListList):
     b = True
-    i = 1
-    while b and i < k:
+    n = len(nodesListList)
+    i = 0
+    while b and i < n:
         b = mem(node,nodesListList[i])
         i += 1
     return b
 
-def extractNodesInCluster(cluster,samplesList,n,k,dataArray):
-    common = []
+#@cluster is the considered cluster
+def extractNodesInCluster(cluster,dataArray):
+    #the resulting list of common nodes
+    commonToCluster = []
     nodesListList = []
-    for sample in cluster:
-        id1 = getCorrespondingID(sample,samplesList,n)
-        nodesListList.append(dataArray[5][id1])
-    if not nodesListList:
+    for sample in cluster[:-1]:
+        #@dataArray[4] = matchingNodes
+        #samples in matchingNodes are in the same order as in filenames
+        #matchingNodes is a dictionary of (key=sample,value=list of nodes matched in this sample)
+        nodesListList.append(dataArray[4].get(sample))
+    if not len(nodesListList):
         print "\n/!\ ERROR: Cluster is empty."
         raise ValueError
-    for x in nodesListList[0]:
-        if isCommon(x,k,nodesListList[1:]):
-            common.append(x)
-    return common
+    nodesTestList = dataArray[4].get(cluster[-1])
+    for node in nodesTestList:
+        if isCommon(node,nodesListList):
+            commonToCluster.append(node)
+    return commonToCluster
 
 #Returns the sets of common nodes in each cluster @commonList
 #@commonList[i] is the set of common nodes for cluster @clusters[i]
 #Improvement would exactly indicate which nodes are discrimant for the clustering
 def extractCommonNodes(clusters,dataArray):
-    samplesList = [x[0] for x in dataArray[5]]
     commonList = []
-    n = len(samplesList)
-    k = len(clusters)
     for cluster in clusters:
-        commonList.append(extractNodesInCluster(cluster,samplesList,n,k,dataArray))
+        commonList.append(extractNodesInCluster(cluster,dataArray))
     return commonList
