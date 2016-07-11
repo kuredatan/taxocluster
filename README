@@ -28,7 +28,7 @@ This program uses a K-Means type clustering to infer correlations between metada
 Notations:
 For a certain read Ri, and if T is the whole taxonomic tree, then Ti is the subtree of T rooted at the LCA of the leaves/species matched by Ri. Li is the set of leaves of Ti and Mi is the set of matched leaves. Let Ni be such as Li is the disjoint union of Mi and Ni. We extend these notations to samples, knowing that a sample is a set of reads: for sample i, Ti is the subtree of T rooted at the LCA of the matched leaves in at least one of the reads in sample i. 
 
-Firstly, it clusters the set of samples according to their values of a certain fixed metadatum, obtaining the set of clusters C1. Then the program uses the distance d(sample1,sample2) = |M1| + |M2| - 2*|M1interM2| to get the set of clusters C2. It deletes one quarter of the samples in each cluster, and later on performs a clustering of the new set of samples using distance d(sample1,sample2) = |L1| + |L2| - q*(|N1interM2| + |N2interM1|) - |M1interM2| where q is provided by the user, 0 <= q <= 1. q is intuitively the way to choose a consensus tree between the two samples: when q = 0, the consensus tree is strict (only allowing "nodes" that are matched in both trees), and when q = 1, the consensus tree is the union of the matched nodes. We obtain a set of clusters C3. 
+Firstly, it clusters the set of samples according to their values of a certain fixed metadatum, obtaining the set of clusters C1. Then the program uses the distance d(sample1,sample2) = |M1| + |M2| - 2*|M1interM2| to get the set of clusters C2. It deletes approximately one quarter of the samples in each cluster, and later on performs a clustering of the new set of samples using distance d(sample1,sample2) = |L1| + |L2| - q*(|N1interM2| + |N2interM1|) - |M1interM2| where q is provided by the user, 0 <= q <= 1. q is intuitively the way to choose a consensus tree between the two samples: when q = 0, the consensus tree is strict (only allowing "nodes" that are matched in both trees), and when q = 1, the consensus tree is the union of the matched nodes. We obtain a set of clusters C3. 
 
 Secondly, the program compares C3 and C1 (computing the distance between two centers of clusters which are supposed to be the same, computing the number of common elements in both clusters) and gives a score S. The closest S is to 1, the more alike the clusters are. When the clustering by microbial population seems relevant accordingly to the clustering by values of metadatum, the program computes and returns the set of common nodes for each cluster of C3.
 
@@ -96,4 +96,4 @@ Comments:
 - Create a folder entitled "files" to store your results.
 
 *** To visualize a graph with dot files ***
-- LINUX: do "sudo apt install graphviz". Then you can right click on the dot file in "files" and see the graph.
+- LINUX: do "sudo apt install graphviz". Then you can right-click on the DOT file in "files" and see the graph.

@@ -27,7 +27,7 @@ def parseMatch(filename):
             read = m.readline()
     return (filename,allSequences)
 
-#Returns dictionary @allMatches (key=sample ID a.k.a. @filename,list of identifiers of sequences matching a read in this sample) 
+#Returns dictionary @allMatches (key=sample ID a.k.a. @filename,value=list of identifiers of sequences matching a read in this sample) 
 def parseAllMatch(filenames):
     allMatches = dict((None,None))
     start = time()
