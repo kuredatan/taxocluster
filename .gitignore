@@ -17,6 +17,7 @@ TODO.txt
 *.taxotree~
 *.5
 *.5~
+*.sh~
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
