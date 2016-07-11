@@ -5,7 +5,6 @@ from parsingTree import parseTree
 from taxoTree import TaxoTree
 from actions import clusteringAct,printTreeAct,parseList
 from featuresVector import featuresCreate
-from misc import getSampleIDList
 
 #/!\ The list of samples ID is supposed to be the same as the list of .match files! Each .match file must correspond to one single sample!
 def main():

@@ -1,5 +1,7 @@
 from time import time 
 import mmap
+import subprocess
+import os
     
 def readIt(filename):
     start = time()
@@ -60,6 +62,13 @@ def testList(filesList):
         fo.close()
     end = time()
     print (end-start),i
+
+def testParse(ext):
+    start = time()
+    subprocess.call("./script_parse_" + ext + ".sh")
+    array = os.getenv('LINE_ARRAY').split(' ')
+    end = time()
+    print end-start
         
 def testOnlyFasta():
     test("GREENGENES_gg16S_unaligned_10022015",True)
