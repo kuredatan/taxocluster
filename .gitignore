@@ -8,6 +8,8 @@ TODO.txt
 *.csv
 *.tree
 *.csv~
+*.test
+*.test~
 *.tree~
 *.taxotree
 *.match

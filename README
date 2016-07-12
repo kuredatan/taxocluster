@@ -97,3 +97,6 @@ Comments:
 
 *** To visualize a graph with dot files ***
 - LINUX: do "sudo apt install graphviz". Then you can right-click on the DOT file in "files" and see the graph.
+
+*** In case of an error during parsing ***
+- LINUX: install perl and cut.

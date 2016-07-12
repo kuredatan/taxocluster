@@ -2,11 +2,24 @@ from time import time
 import sys as s
 import re
 import mmap
+import subprocess as s
 
 integer = re.compile("[0-9]+")
 
-#Returns the pair (identifier of patient a.k.a. @filename,list of identifiers of sequences matching a read in this patient)
 def parseMatch(filename):
+    start = time()
+    s.call("cut -d ' ' -f 2- ./meta/match/" + filename + ".match > ./meta/match/file.test",shell=True)
+    s.call("perl -pi -e 'chomp' ./meta/match/file.test",shell=True)
+    with open("./meta/match/file.test","r+b") as fo:
+        m = mmap.mmap(fo.fileno(),0,prot=mmap.PROT_READ)
+        read = m.readline()
+        result = read.split(" ")
+    end = time()
+    print "TIME:",(end-start)
+    #return result
+
+#Returns the pair (identifier of patient a.k.a. @filename,list of identifiers of sequences matching a read in this patient)
+def parseMatch2(filename):
     allSequences = []
     with open("meta/match/" + filename + ".match","r+b") as fo:
         #Loads file into memory for faster reading access
@@ -29,7 +42,7 @@ def parseMatch(filename):
 
 #Returns dictionary @allMatches (key=sample ID a.k.a. @filename,value=list of identifiers of sequences matching a read in this sample) 
 def parseAllMatch(filenames):
-    allMatches = dict((None,None))
+    allMatches = dict.fromkeys((None,None))
     start = time()
     for filename in filenames:
         try:
