@@ -16,7 +16,7 @@ def parseMatch(filename):
         result = read.split(" ")
     end = time()
     print "TIME:",(end-start)
-    #return result
+    return (filename,result)
 
 #Returns the pair (identifier of patient a.k.a. @filename,list of identifiers of sequences matching a read in this patient)
 def parseMatch2(filename):
