@@ -117,7 +117,7 @@ def clusteringAct(dataArray):
     #@distanceMatrix is the distance dictionary (key=(sample1,sample2),value=distance between sample1 and sample2)
     kClusters,meanSamples,distanceDict,_ = kMeans(trimmedList,numberClass,kClusters,startSet,dist2,dataArray,q)
     print "-- End of second clustering --"
-    print "Printing the",numberClass,"clusters"
+    print "Printing the",numberClass,"clusters:"
     i = 1
     #@kClusters contains the list of the k clusters. Each cluster is a list of sample IDs
     for cluster in kClusters:

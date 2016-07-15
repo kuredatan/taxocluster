@@ -6,7 +6,9 @@ import subprocess as s
 
 integer = re.compile("[0-9]+")
 
+#Returns the pair (identifier of patient a.k.a. @filename,list of identifiers of sequences matching a read in this patient)
 def parseMatch(filename):
+    print filename
     start = time()
     s.call("cut -d ' ' -f 2- ./meta/match/" + filename + ".match > ./meta/match/file.test",shell=True)
     s.call("perl -pi -e 'chomp' ./meta/match/file.test",shell=True)
@@ -17,28 +19,6 @@ def parseMatch(filename):
     end = time()
     print "TIME:",(end-start)
     return (filename,result)
-
-#Returns the pair (identifier of patient a.k.a. @filename,list of identifiers of sequences matching a read in this patient)
-def parseMatch2(filename):
-    allSequences = []
-    with open("meta/match/" + filename + ".match","r+b") as fo:
-        #Loads file into memory for faster reading access
-        m = mmap.mmap(fo.fileno(),0,prot=mmap.PROT_READ)
-        #In my version of Python, this returns a whole line
-        read = m.readline()
-        while read:
-            index = 0
-            while not read[index] == " ":
-                index += 1
-            index += 1
-            #The condition "integer.match(r)" is compulsory
-            #though it is quite time-consuming
-            #We do not care here for multiple occurrences in @allSequences
-            #It will be taken into account in featuresVector.py
-            ls = [ int(r) for r in read[index:].split(" ") if integer.match(r) ]
-            allSequences += ls
-            read = m.readline()
-    return (filename,allSequences)
 
 #Returns dictionary @allMatches (key=sample ID a.k.a. @filename,value=list of identifiers of sequences matching a read in this sample) 
 def parseAllMatch(filenames):
