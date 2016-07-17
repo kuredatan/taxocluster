@@ -1,8 +1,15 @@
 from time import time
 import sys as s
 import re
-import mmap
-import subprocess as s
+import subprocess as sb
+import numpy as np
+
+def generateDTYPE(line):
+    numberColumns = sb.call("tr ' ' '\n' " + line + " | wc -l",shell=True)
+    dtype = []
+    for i in range(numberColumns):
+        dtype.append(("n%d"%i,np.uint32))
+    return dtype
 
 integer = re.compile("[0-9]+")
 
@@ -10,13 +17,23 @@ integer = re.compile("[0-9]+")
 def parseMatch(filename):
     print filename
     start = time()
-    s.call("cut -d ' ' -f 2- ./meta/match/" + filename + ".match > ./meta/match/file.test",shell=True)
-    s.call("perl -pi -e 'chomp' ./meta/match/file.test",shell=True)
+    sb.call("cut -d ' ' -f 2- ./meta/match/" + filename + ".match | sed 's/\n/ /g' > ./meta/match/file.test",shell=True)
+    print "done"
+    numberRows = int(sb.check_output("wc -l ./meta/match/" + filename + ".match",shell=True).split()[0])
+    numberColumns = sb.call("head -1 ./meta/match/file.test | tr ' ' '\n' | wc -l",shell=True)
+    result = np.zeros(numberColumns*numberRows)
+    print "done"
+    print numberColumns,np.shape(result)
+    index = 0
     with open("./meta/match/file.test","r+b") as fo:
-        m = mmap.mmap(fo.fileno(),0,prot=mmap.PROT_READ)
-        read = m.readline()
-        result = read.split(" ")
+        for line in fo:
+            ls = line.split()
+            for i in ls:
+                result[index] = int(i)
+                index += 1
+            break
     end = time()
+    sb.call("rm -f *.mmap_match")
     print "TIME:",(end-start)
     return (filename,result)
 

@@ -1,5 +1,6 @@
 from misc import sanitize
 
+import re
 from time import time
 import subprocess as sb
 
@@ -32,51 +33,30 @@ def getBackBacteria(string):
     #Phylogeny does not include the node itself
     if rank == "S":
         return None
-    return (sanitize(ls[1]),rank)
+    return (ls[1],rank)
 
 #__________________________________________
+
+#LINE: >identifier integer.integer name rank__name;rank__name; ...; otu_integer [phylogeny]
 
 #Returns @idSequences dictionary (key=identifier of sequence,value=((name of associated sequence/node,rank of node),phylogeny of node)
 def parseFasta(filename):
     start = time()
+    sb.call("sed 'n;d' meta/" + filename + ".fasta | sed 's/>//g' | sed 's/[A-Z][A-Z][0-9]*[.][0-9]*//g' | sed 's/otu_[0-9]*//g' > meta/newfile.fasta",shell=True)
     idSequences = dict.fromkeys((None,(None,None)))
-    #Deletes the sequence part
-    sb.call("sed 'n;d' meta/" + filename + ".fasta > meta/newfile.fasta",shell=True)
     with open("meta/newfile.fasta","r") as fo:
         for line in fo:
-            #The FASTA file is such as:
-            #LINE: >identifier integer.integer name rank__name;rank__name; ...; otu_integer [phylogeny]
-            #Deletes > part
             index = 1
-            currPhylogeny = []
-            indexEnd = 1
-            while not line[indexEnd] == " ":
-                indexEnd += 1
-            #Gets identifier
-            identifier = line[index:indexEnd]
-            index = indexEnd+1
-            #Jumping over "integer.integer" section
-            while line[index] and not line[index] == " ":
+            while not (line[index] == " "):
                 index += 1
-            index += 1
-            indexEnd = index + 0
-            #While not encountering the phylogeny section
-            while not line[indexEnd] == "_":
-                indexEnd += 1
-            indexEnd -= 3
-            #Gets name
-            name = sanitize(line[index:indexEnd+1])
-            index = indexEnd + 2
-            indexEnd = index + 0
-            #Gets phylogeny
-            while not line[index:index + 3] == "otu":
-                indexEnd = index + 0
-                while not line[indexEnd] == ";":
-                    indexEnd += 1
-                bact = getBackBacteria(line[index:indexEnd])
-                if bact:
-                    currPhylogeny.append(bact)
-                index = indexEnd + 2
+            identifier = int(line[:index])
+            ls = line[index+1:].split("k__")
+            if not (len(ls) == 2):
+                print "/n/!\ ERROR: Parsing Fasta error."
+                raise ValueError
+            ls[1] = "k__" + ls[1]
+            name = ls[0]
+            currPhylogeny = [ bact for bact in map(getBackBacteria,ls[1].split("; ")) if bact]
             rank = getNextRank(currPhylogeny[-1][1])
             idSequences.setdefault(identifier,((name,rank),currPhylogeny))
     sb.call("rm -f meta/newfile.fasta",shell=True)
