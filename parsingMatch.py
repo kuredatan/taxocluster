@@ -3,6 +3,7 @@ import sys as s
 import re
 import subprocess as sb
 import numpy as np
+import array
 
 integer = re.compile("[0-9]+")
 
@@ -36,8 +37,8 @@ def parseAllMatch(filenames):
     for filename in filenames:
         try:
             if filename:
-                sampleID,sequencesList = parseMatch(filename,i)
-                allMatches.setdefault(sampleID,sequencesList)
+                sampleID,sequencesArray = parseMatch(filename,i)
+                allMatches.setdefault(sampleID,sequencesArray)
                 i += 1
         except IOError:
             print "\nERROR: Maybe the filename",filename,".match does not exist in \"meta/matches\" folder\n"
