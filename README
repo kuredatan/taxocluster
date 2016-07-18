@@ -93,7 +93,19 @@ Helps saving results in files.
 Comments:
 
 *** Before starting TAXOCLUSTER ***
-- Create a folder entitled "files" to store your results.
+- Start process in preformat.py
+OR
+- Create a folder entitled "files" to store your results in main folder.
+- Create a folder entitled "meta" to store your .tree, .fasta files. In "meta" create "match" folder (to put your .match files), and then in "match" create "testfiles" folder.
+
+TaxoCluster --
+             |
+             ---- files
+             ---- meta
+                 |
+                  --- match
+                      |
+                      -- testfiles
 
 *** To visualize a graph with dot files ***
 - LINUX: do "sudo apt install graphviz". Then you can right-click on the DOT file in "files" and see the graph.

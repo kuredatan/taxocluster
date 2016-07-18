@@ -1,10 +1,12 @@
 import sys as s
+import subprocess as sb
 
 from parsingInfo import parseInfo
 from parsingTree import parseTree
 from taxoTree import TaxoTree
 from actions import clusteringAct,printTreeAct,parseList
 from featuresVector import featuresCreate
+from preformat import process
 
 #/!\ The list of samples ID is supposed to be the same as the list of .match files! Each .match file must correspond to one single sample!
 def main():
@@ -31,6 +33,11 @@ def main():
         print "\nERROR: Maybe the filename",tTree,".tree does not exist in \"meta\" folder.\n"
         s.exit(0)
     print "-- End of parsing\n"
+    result = sb.check_output("ls ./meta/match/testfiles",shell=True)
+    if not result:
+        print "/!\ Pre-processing files for parsing..."
+        process(filenames)
+        print "/!\ Pre-processing done."
     print "/!\ Constructing the whole taxonomic tree..."
     taxoTree = TaxoTree("Root").addNode(paths,nodesListTree)
     print "/!\ Constructing the features vectors..."
