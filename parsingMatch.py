@@ -46,3 +46,8 @@ def parseAllMatch(filenames):
     print "TIME .match:",(end-start)
     return allMatches
 
+def test():
+    sb.call("ls > toto",shell=True)
+    filenames = sb.check_output("sed 's/.match//g' | sed 's/testfiles//g' | sed 's/toto//g' | sed '/^$//g'",shell=True)
+    sb.call("rm -f toto",shell=True)
+    print filenames

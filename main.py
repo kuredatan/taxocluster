@@ -36,9 +36,9 @@ def main():
     result = sb.check_output("ls ./meta/match/testfiles",shell=True)
     if not result:
         print "/!\ Pre-processing files for parsing..."
-        sb.call("ls > sampleidlist")
-        sampleidlist = sb.check_output("sed 's/.match//g' sampleidlist | sed 's/testfiles//g' | sed 's/sampleidlist//g' | sed '/^$/d'").split()
-        sb.call("rm -f sampleidlist")
+        sb.call("ls > sampleidlist",shell=True)
+        sampleidlist = sb.check_output("sed 's/.match//g' sampleidlist | sed 's/testfiles//g' | sed 's/sampleidlist//g' | sed '/^$/d'",shell=True).split()
+        sb.call("rm -f sampleidlist",shell=True)
         process(sampleidlist)
         print "/!\ Pre-processing done."
     print "/!\ Constructing the whole taxonomic tree..."
