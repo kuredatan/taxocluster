@@ -1,6 +1,6 @@
 import sys as s
 
-from parsingMatch import parseAllMatch
+from parsingMatch import parseAllFact
 from parsingFasta import parseFasta
 
 #@allMatches is a dictionary of (key=sample ID,value=list of sequences ID matching a read in this sample)
@@ -12,10 +12,13 @@ def getMatchingNodes(allMatches,idSequences,filenames):
     for sample in filenames:
         matchingSequencesID = allMatches.get(sample)
         matchingNodesInThisSample = []
-        for sequenceID in matchingSequencesID:
-            node,_ = idSequences.get(sequenceID)
-            matchingNodesInThisSample.append(node)
-        matchingNodes[sample] = matchingNodesInThisSample
+        if not (matchingSequencesID == None):
+            for sequenceID in matchingSequencesID:
+                node,_ = idSequences.get(sequenceID)
+                matchingNodesInThisSample.append(node)
+            matchingNodes[sample] = matchingNodesInThisSample
+        else:
+            print "The sample \'",sample,"\' could not be processed."
     return matchingNodes
         
 #Returns @matchingNodes, dictionary of (key=sample ID,value=list of nodes matched in this sample -i.e. at least in one read of this sample), and @idSequences, which is a dictionary of (key=identifier of sequence,value=(name,rank) of the node associated to this sequence)
@@ -24,11 +27,15 @@ def getMatchingNodes(allMatches,idSequences,filenames):
 #@sampleIDList is the list of samples ID
 def featuresCreate(filenames,fastaFileName):
     print "/!\ Parsing .match files"
-    print "[ You may have to wait a few minutes... ]"
+    print "[ You may have to wait a few seconds... ]"
     #@allMatches is a dictionary of (key=sample ID,value=list of sequences ID matching a read in this sample)
+    import time
+    start = time.time()
     allMatches = parseAllFact(filenames)
+    end = time.time()
+    print "TIME:",(end-start)
     print "/!\ Parsing .fasta files"
-    print "[ You may have to wait a few minutes... ]"
+    print "[ You may have to wait a few seconds... ]"
     try:
         #@idSequences is a dictionary of (key=identifier,value=((name,rank))
         idSequences = parseFasta(fastaFileName)

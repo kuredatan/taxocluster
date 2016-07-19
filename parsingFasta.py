@@ -45,7 +45,7 @@ def getBackBacteria(string):
 def parseFasta(filename):
     start = time()
     sb.call("sed 'n;d' meta/" + filename + ".fasta | sed 's/>//g' | sed 's/[A-Z][A-Z][0-9]*[.][0-9]*//g' | sed 's/otu_[0-9]*//g' > meta/newfile.fasta",shell=True)
-    idList = [ int(i) for i in sb.check_output("cut -d ' ' -f 1 meta/newfile.fasta",shell=True).split() ] if integer.match(i) ]
+    idList = [ int(i) for i in sb.check_output("cut -d ' ' -f 1 meta/newfile.fasta",shell=True).split() if integer.match(i) ]
     idSequences = dict.fromkeys(idList)
     with open("meta/newfile.fasta","r") as fo:
         for line in fo:

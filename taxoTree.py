@@ -246,7 +246,7 @@ def printTree(tree):
     for i in range(n):
         print "**** child #%d of %s %s"%(i,name,rank)
         tree = nodeList[i]
-        printTree(tree,sampleOn)
+        printTree(tree)
         if tree:
             print "END #%d %s %s of %s %s ****"%(i,tree.name,tree.rank,name,rank)
     print "---"

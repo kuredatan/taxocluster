@@ -1,9 +1,11 @@
 from __future__ import division
 #Implements K-means algorithm
 import numpy as np
-from misc import inf,mem
 from random import randint
 from copy import deepcopy
+from time import time
+
+from misc import inf,mem
 
 #@dist is the distance used to compute calculus
 #@elementSet is the set of elements to cluster
@@ -41,9 +43,10 @@ def updateMean(meanSample,cluster,distanceDict):
 
 #@startSet solves the problem of initialization in K-Means Algorithm
 def kMeans(elementSet,k,kClusters,startSet,dist,dataArray,q=0.5):
+    start = time()
     totalElementSet = elementSet + startSet
     n = len(totalElementSet)
-    if not (n == len(dataArray[3])):
+    if not (n > len(dataArray[3])):
         print "\n/!\ ERROR: Different lengths of set of samples",len(dataArray[3]),n,"."
         raise ValueError
     meanSamples = [x for x in startSet]
@@ -62,6 +65,7 @@ def kMeans(elementSet,k,kClusters,startSet,dist,dataArray,q=0.5):
     #distanceInClusters is a list of lists of (sample,sum of all distances from this samples to any other sample in the same cluster) pairs
     distanceInClusters = []*k
     while not endIt:
+        print "/!\ Next iteration",currAssignments,"."
         for unassignedElement in range(n-k):
             minDist = inf
             minCluster = None
@@ -81,4 +85,6 @@ def kMeans(elementSet,k,kClusters,startSet,dist,dataArray,q=0.5):
             distanceInClusters[minCluster] = distanceInCluster
         endIt = shouldStop(kClusters,previouskClusters,k)
         previouskClusters = deepcopy(kClusters)
+    end = time()
+    print "TIME:",(end-start)
     return kClusters,meanSamples,distanceDict,distanceInClusters

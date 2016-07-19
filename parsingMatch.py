@@ -9,7 +9,6 @@ integer = re.compile("[0-9]+")
 
 #Returns the pair (identifier of patient a.k.a. @filename,list of identifiers of sequences matching a read in this patient)
 def parseMatch(filename,i):
-    print filename
     number = int(sb.check_output("head -n 1 ./meta/match/testfiles/file" + str(i) + ".test",shell=True))
     result = np.zeros(number)
     index = 0

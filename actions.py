@@ -4,10 +4,11 @@ import re
 
 from writeOnFiles import writeFile
 from taxoTree import TaxoTree,printTree
-from misc import isInDatabase,partitionSampleByMetadatumValue,cleanClusters,trimList,convertClustersIntoGraph
+from misc import isInDatabase,partitionSampleByMetadatumValue,cleanClusters,trimList,convertClustersIntoGraph,sanitize
 from computeDistances import dist1,dist2
 from dotModule import graphNO
 from compareClusters import compareCluster,compareCenters
+from kMeans import kMeans
  
 #@dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree]
 
@@ -88,7 +89,7 @@ def sanitizeNode(stringNode):
 #Improvement will include a whole list of metadata to cluster
 def clusteringAct(dataArray):
     print dataArray[1]
-    metadatum = sanitize(raw_input("Select the metadatum among those above to cluster the set of samples. [e.g. " + dataArray[1][0] + "]")).split(";")[0]
+    metadatum = sanitize(raw_input("Select the metadatum among those above to cluster the set of samples. [e.g. " + dataArray[1][0] + "]\n")).split(";")[0]
     isInDatabase([metadatum],dataArray[1])
     valueSet,clusters = partitionSampleByMetadatumValue([metadatum],dataArray[1],dataArray[0])
     #that is, k in K-means Algorithm

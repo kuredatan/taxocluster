@@ -7,6 +7,7 @@ from taxoTree import TaxoTree
 from actions import clusteringAct,printTreeAct,parseList
 from featuresVector import featuresCreate
 from preformat import process
+from misc import mergeList
 
 #/!\ The list of samples ID is supposed to be the same as the list of .match files! Each .match file must correspond to one single sample!
 def main():
@@ -36,22 +37,24 @@ def main():
     result = sb.check_output("ls ./meta/match/testfiles",shell=True)
     if not result:
         print "/!\ Pre-processing files for parsing..."
-        sb.call("ls > sampleidlist",shell=True)
-        sampleidlist = sb.check_output("sed 's/.match//g' sampleidlist | sed 's/testfiles//g' | sed 's/sampleidlist//g' | sed '/^$/d'",shell=True).split()
-        sb.call("rm -f sampleidlist",shell=True)
         process(sampleidlist)
         print "/!\ Pre-processing done."
+    sb.call("ls ./meta/match > sampleidlist",shell=True)
+    sampleidlist = sb.check_output("sed 's/.match//g' sampleidlist | sed 's/testfiles//g' | sed '/^$/d'",shell=True).split()
+    sb.call("rm -f sampleidlist",shell=True)
     print "/!\ Constructing the whole taxonomic tree..."
+    print "[ You may have to wait a few seconds... ]"
     taxoTree = TaxoTree("Root").addNode(paths,nodesListTree)
     print "/!\ Constructing the features vectors..."
+    sampleList = mergeList(sampleidlist,filenames)
     try:
-        matchingNodes,idSequences = featuresCreate(sampleidlist,fastaFileName)
-    except ValueError:
+        matchingNodes,idSequences = featuresCreate(sampleList,fastaFileName)
+    except ValueError: 
         print "/!\ ERROR: Please look at the line above."
         print "/!\ ERROR: If the line above is blank, it may be an uncatched ValueError.\n"
         s.exit(0)
     print "-- End of construction\n"
-    dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree]
+    dataArray = [samplesInfoList,infoList,idSequences,sampleList,matchingNodes,paths,nodesListTree,taxoTree]
     answer = ""
     while not ((answer == "exit") or (answer == "exit()") or (answer == "quit")):
         try:

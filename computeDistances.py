@@ -6,6 +6,7 @@ from taxoTree import TaxoTree
 #distance(@sample1,@sample2) = |number of nodes matched in @sample1| + |number of nodes matched in @sample2| - 2*|number of nodes matched in both samples|
 #@q is useless here
 def dist1(sample1,sample2,dataArray,q):
+    print sample1,sample2
     #@dataArray[4] = matchingNodes, dictionary of (key=sample,value=list of nodes matched in this sample)
     nodesList1 = dataArray[4].get(sample1)
     nodesList2 = dataArray[4].get(sample2)
@@ -14,6 +15,7 @@ def dist1(sample1,sample2,dataArray,q):
 
 #distance(@sample1,@sample2) = |L1| + |L2| - q*(|N1interM2| + |N2interM1|) - |M1interM2| (see README for notations)
 def dist2(sample1,sample2,dataArray,q):
+    print sample1,sample2
     #@dataArray[4] = matchingNodes, dictionary of (key=sample,value=list of nodes matched in this sample)
     nodesList1 = dataArray[4].get(sample1)
     nodesList2 = dataArray[4].get(sample2)

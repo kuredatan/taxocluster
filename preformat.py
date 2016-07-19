@@ -1,4 +1,4 @@
-1import subprocess as sb
+import subprocess as sb
 
 def process(filenames):
     sb.call("chmod +rwx script_format.sh",shell=True)
