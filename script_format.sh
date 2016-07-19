@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#if [! -e -r files]
+#if ![-e -r files]
 #then
 #    mkdir files;
 #fi
 
-#if [! -e -r meta]
+#if ![-e -r meta]
 #then
 #    mkdir meta;
 #    cd meta;
@@ -20,8 +20,9 @@
 #fi
 
 i=0
+chmod +rwx script_format_per_file.sh;
 for FILE in ./meta/match/*.match
 do
-    ./script_format_per_file.sh $FILE $i #&
+    ./script_format_per_file.sh $FILE $i &
     i=$((i + 1));
 done
