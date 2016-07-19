@@ -4,6 +4,8 @@ import re
 from time import time
 import subprocess as sb
 
+integer = re.compile("[0-9]+")
+
 #___________________________________________
 
 #Default phylogeny is GreenGenes'
@@ -43,7 +45,8 @@ def getBackBacteria(string):
 def parseFasta(filename):
     start = time()
     sb.call("sed 'n;d' meta/" + filename + ".fasta | sed 's/>//g' | sed 's/[A-Z][A-Z][0-9]*[.][0-9]*//g' | sed 's/otu_[0-9]*//g' > meta/newfile.fasta",shell=True)
-    idSequences = dict.fromkeys((None,(None,None)))
+    idList = [ int(i) for i in sb.check_output("cut -d ' ' -f 1 meta/newfile.fasta",shell=True).split() ] if integer.match(i) ]
+    idSequences = dict.fromkeys(idList)
     with open("meta/newfile.fasta","r") as fo:
         for line in fo:
             index = 1
@@ -58,7 +61,7 @@ def parseFasta(filename):
             name = ls[0]
             currPhylogeny = [ bact for bact in map(getBackBacteria,ls[1].split("; ")) if bact]
             rank = getNextRank(currPhylogeny[-1][1])
-            idSequences.setdefault(identifier,((name,rank),currPhylogeny))
+            idSequences[identifier] = (name,rank)
     sb.call("rm -f meta/newfile.fasta",shell=True)
     end = time()
     print "TIME .fasta:",(end-start)

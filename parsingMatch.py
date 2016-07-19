@@ -26,19 +26,18 @@ def parseMatch(filename,i):
                     index += 1
     end = time()
     print "TIME:",(end-start)
-    return (filename,result)
+    return result
 
 #Returns dictionary @allMatches (key=sample ID a.k.a. @filename,value=list of identifiers of sequences matching a read in this sample) 
 def parseAllMatch(filenames):
-    allMatches = dict.fromkeys((None,None))
+    allMatches = dict.fromkeys(filenames)
     start = time()
-    filenames = sorted(filenames,key=lambda x:x)
     i = 0
     for filename in filenames:
         try:
             if filename:
-                sampleID,sequencesArray = parseMatch(filename,i)
-                allMatches.setdefault(sampleID,sequencesArray)
+                sequencesArray = parseMatch(filename,i)
+                allMatches[filename] = sequencesArray
                 i += 1
         except IOError:
             print "\nERROR: Maybe the filename",filename,".match does not exist in \"meta/matches\" folder\n"
