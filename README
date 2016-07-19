@@ -93,7 +93,7 @@ Helps saving results in files.
 Comments:
 
 *** Before starting TAXOCLUSTER ***
-- Start process in preformat.py
+- Start process in preformat.py /!\ Beware: multithreading!
 OR
 - Create a folder entitled "files" to store your results in main folder.
 - Create a folder entitled "meta" to store your .tree, .fasta files. In "meta" create "match" folder (to put your .match files), and then in "match" create "testfiles" folder.
