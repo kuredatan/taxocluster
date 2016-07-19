@@ -19,7 +19,7 @@ def getCorrespondingID(element,elementList,listLength):
     return i
 
 def memArray(x,array):
-    n,_ = np.shape(array)
+    n = len(array)
     for i in range(n):
         if array[i] == x:
             return True

@@ -51,6 +51,7 @@ def kMeans(elementSet,k,kClusters,startSet,dist,dataArray,q=0.5):
         raise ValueError
     meanSamples = [x for x in startSet]
     #Computes the distance dictionary (key=(sample1,sample2),distance between sample1 and sample2)
+    print "/!\ Computing distance matrix..."
     distanceDict = dict.fromkeys((None,None))
     for i1 in range(n):
         #dist is symmetric
@@ -58,12 +59,14 @@ def kMeans(elementSet,k,kClusters,startSet,dist,dataArray,q=0.5):
             s = dist(totalElementSet[i1],totalElementSet[i2],dataArray,q)
             distanceDict.setdefault((totalElementSet[i1],totalElementSet[i2]),s)
             distanceDict.setdefault((totalElementSet[i2],totalElementSet[i1]),s)
+    print "-- End of computation."
     endIt = False
     previouskClusters = deepcopy(kClusters)
     #currAssignments[i] is the index of the cluster where totalElementSet[i] currently is
     currAssignments = [None]*(n-k)
     #distanceInClusters is a list of lists of (sample,sum of all distances from this samples to any other sample in the same cluster) pairs
     distanceInClusters = []*k
+    print "/!\ Starting clustering..."
     while not endIt:
         print "/!\ Next iteration",currAssignments,"."
         for unassignedElement in range(n-k):
@@ -85,6 +88,7 @@ def kMeans(elementSet,k,kClusters,startSet,dist,dataArray,q=0.5):
             distanceInClusters[minCluster] = distanceInCluster
         endIt = shouldStop(kClusters,previouskClusters,k)
         previouskClusters = deepcopy(kClusters)
+    print "-- End of clustering."
     end = time()
     print "TIME:",(end-start)
     return kClusters,meanSamples,distanceDict,distanceInClusters
