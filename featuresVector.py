@@ -26,7 +26,7 @@ def featuresCreate(filenames,fastaFileName):
     print "/!\ Parsing .match files"
     print "[ You may have to wait a few minutes... ]"
     #@allMatches is a dictionary of (key=sample ID,value=list of sequences ID matching a read in this sample)
-    allMatches = parseAllMatch(filenames)
+    allMatches = parseAllFact(filenames)
     print "/!\ Parsing .fasta files"
     print "[ You may have to wait a few minutes... ]"
     try:
