@@ -45,3 +45,4 @@ def parseAllMatch(filenames):
     end = time()
     print "TIME .match:",(end-start)
     return allMatches
+

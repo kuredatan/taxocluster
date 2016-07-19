@@ -22,7 +22,7 @@ def main():
     print "/!\ Data getting parsed..."
     try:
         samplesInfoList,infoList = parseInfo(iMatrix)
-        filenames = sorted([sample[0] for sample in samplesInfoList],key=lambda x:x)
+        filenames = [sample[0] for sample in samplesInfoList]
     except IOError:
         print "\nERROR: Maybe the filename",iMatrix,".csv does not exist in \"meta\" folder.\n"
         s.exit(0)
@@ -36,13 +36,16 @@ def main():
     result = sb.check_output("ls ./meta/match/testfiles",shell=True)
     if not result:
         print "/!\ Pre-processing files for parsing..."
-        process(filenames)
+        sb.call("ls > sampleidlist")
+        sampleidlist = sb.check_output("sed 's/.match//g' sampleidlist | sed 's/testfiles//g' | sed 's/sampleidlist//g' | sed '/^$/d'").split()
+        sb.call("rm -f sampleidlist")
+        process(sampleidlist)
         print "/!\ Pre-processing done."
     print "/!\ Constructing the whole taxonomic tree..."
     taxoTree = TaxoTree("Root").addNode(paths,nodesListTree)
     print "/!\ Constructing the features vectors..."
     try:
-        matchingNodes,idSequences = featuresCreate(filenames,fastaFileName)
+        matchingNodes,idSequences = featuresCreate(sampleidlist,fastaFileName)
     except ValueError:
         print "/!\ ERROR: Please look at the line above."
         print "/!\ ERROR: If the line above is blank, it may be an uncatched ValueError.\n"
