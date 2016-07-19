@@ -22,7 +22,7 @@ def main():
     print "/!\ Data getting parsed..."
     try:
         samplesInfoList,infoList = parseInfo(iMatrix)
-        filenames = sorted([sample[0] for sample in samplesInfoList],lambda x:x)
+        filenames = sorted([sample[0] for sample in samplesInfoList],key=lambda x:x)
     except IOError:
         print "\nERROR: Maybe the filename",iMatrix,".csv does not exist in \"meta\" folder.\n"
         s.exit(0)
