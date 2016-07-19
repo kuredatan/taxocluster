@@ -1,6 +1,7 @@
 from __future__ import division
 import numpy as np
 import re
+import numpy as np
 
 from writeOnFiles import writeFile
 
@@ -16,6 +17,13 @@ def getCorrespondingID(element,elementList,listLength):
         print "\n/!\ ERROR: ",element,"not in list."
         raise ValueError
     return i
+
+def memArray(x,array):
+    n,_ = np.shape(array)
+    for i in range(n):
+        if array[i] == x:
+            return True
+    return False
 
 #converts list of clusters @kClusters into a graph (adjacency matrix)
 #@distanceDict is a dictionary (key=(sample1,sample2),value=distance)

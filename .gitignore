@@ -3,7 +3,6 @@
 .DS_Store
 *.tmp
 *.tmp~
-*.test~
 README~
 *.py~
 *.txt~
@@ -11,7 +10,6 @@ TODO.txt
 *.csv
 *.tree
 *.csv~
-*.test
 *.test~
 *.tree~
 *.taxotree

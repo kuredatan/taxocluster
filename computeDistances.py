@@ -1,4 +1,4 @@
-from misc import getCorrespondingID,mem,mergeList
+from misc import getCorrespondingID,memArray,mergeList
 from taxoTree import TaxoTree
 
 #@dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree]
@@ -8,17 +8,20 @@ from taxoTree import TaxoTree
 def dist1(sample1,sample2,dataArray,q):
     print sample1,sample2
     #@dataArray[4] = matchingNodes, dictionary of (key=sample,value=list of nodes matched in this sample)
-    nodesList1 = dataArray[4].get(sample1)
-    nodesList2 = dataArray[4].get(sample2)
-    common = [x for x in nodesList1 if mem(x,nodesList2)]
+    nodes1 = dataArray[4].get(sample1)
+    print "/!\ Got access to matching nodes (1)..."
+    nodes2 = dataArray[4].get(sample2)
+    print "/!\ Got access to matching nodes (2)..."
+    common = [x for x in nodesList1 if memArray(x,nodesList2)]
+    print "/!\ Got common nodes..."
     return len(nodesList1) + len(nodesList2) - 2*len(common)
 
 #distance(@sample1,@sample2) = |L1| + |L2| - q*(|N1interM2| + |N2interM1|) - |M1interM2| (see README for notations)
 def dist2(sample1,sample2,dataArray,q):
     print sample1,sample2
     #@dataArray[4] = matchingNodes, dictionary of (key=sample,value=list of nodes matched in this sample)
-    nodesList1 = dataArray[4].get(sample1)
-    nodesList2 = dataArray[4].get(sample2)
+    nodes1 = dataArray[4].get(sample1)
+    nodes2 = dataArray[4].get(sample2)
     nodeLCA1 = taxoLCA(paths,nodesList1)
     nodeLCA2 = taxoLCA(paths,nodesList2)
     #@dataArray[7] = taxoTree
@@ -35,8 +38,8 @@ def dist2(sample1,sample2,dataArray,q):
     specificNodes2 = 0
     leaves = mergeList(leaves1,leaves2)
     for x in leaves:
-        m1 = mem(x,nodesList1)
-        m2 = mem(x,nodesList2)
+        m1 = memArray(x,nodes1)
+        m2 = memArray(x,nodes2)
         if m1 and m2:
             commonMatchedNodes += 1
         elif m1:
