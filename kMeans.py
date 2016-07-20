@@ -42,7 +42,7 @@ def updateMean(meanSample,cluster,distanceDict):
     return currMean,distanceInCluster
 
 #@startSet solves the problem of initialization in K-Means Algorithm
-def kMeans(elementSet,k,kClusters,startSet,dist,dataArray,q=0.5):
+def kMeans(elementSet,k,kClusters,startSet,distanceDict,dataArray,q=0.5):
     start = time()
     totalElementSet = elementSet + startSet
     n = len(totalElementSet)
@@ -50,16 +50,6 @@ def kMeans(elementSet,k,kClusters,startSet,dist,dataArray,q=0.5):
         print "\n/!\ ERROR: Different lengths of set of samples",len(dataArray[3]),n,"."
         raise ValueError
     meanSamples = [x for x in startSet]
-    #Computes the distance dictionary (key=(sample1,sample2),distance between sample1 and sample2)
-    print "/!\ Computing distance matrix..."
-    distanceDict = dict.fromkeys((None,None))
-    for i1 in range(n):
-        #dist is symmetric
-        for i2 in range(i1+1,n):
-            s = dist(totalElementSet[i1],totalElementSet[i2],dataArray,q)
-            distanceDict.setdefault((totalElementSet[i1],totalElementSet[i2]),s)
-            distanceDict.setdefault((totalElementSet[i2],totalElementSet[i1]),s)
-    print "-- End of computation."
     endIt = False
     previouskClusters = deepcopy(kClusters)
     #currAssignments[i] is the index of the cluster where totalElementSet[i] currently is

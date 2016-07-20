@@ -18,12 +18,33 @@ def getCorrespondingID(element,elementList,listLength):
         raise ValueError
     return i
 
-def memArray(x,array):
-    n = len(array)
-    for i in range(n):
-        if array[i] == x:
-            return True
-    return False
+#Return the common elements (with duplicates) to l1 and l2
+#and the length of both lists and of common lists
+def memList(l1,l2):
+    common = []
+    number,numberl1,numberl2 = 0,0,0
+    l11 = sorted(l1)
+    l22 = sorted(l2)
+    while l11 and l22:
+        x = l11.pop()
+        y = l22.pop()
+        if x == y:
+            common.append(x)
+            number += 1
+            numberl1 += 1
+            numberl2 += 1
+        elif x > y:
+            l22.append(y)
+            numberl1 += 1
+        else:
+            l11.append(x)
+            numberl2 += 1
+    if l11:
+        numberl1 += len(l11)
+    elif l22:
+        numberl2 += len(l22)
+    return common,number,numberl1,numberl2
+    
 
 #converts list of clusters @kClusters into a graph (adjacency matrix)
 #@distanceDict is a dictionary (key=(sample1,sample2),value=distance)
@@ -200,8 +221,8 @@ def selectPath(paths,name,rank,n):
     while i < n and not containsSpecie(paths[i],name,rank):
 	i += 1
     if (i == n):
-        print "\n/!\ ERROR: [BUG] [misc/selectPath] No path for (%s,%s)."%(name,rank)
-        raise ValueError
+        #print "\n/!\ ERROR: [misc/selectPath] No path for (%s,%s)."%(name,rank)
+        return []
     else:
         path = []
         x = paths[i]
@@ -247,8 +268,11 @@ def isEqual(pathsNodes):
 
 def setOperations(paths,nodesList,allNodes=False):
     pathsNodes = []
+    n = len(paths)
     for node in nodesList:
-        pathNodes.append(selectPath(paths,node[0],node[1]))
+        path = selectPath(paths,node[0],node[1],n)
+        if path:
+            pathsNodes.append(path)
     commonPaths = []
     n = minList([len(path) for path in pathsNodes])
     i = 0

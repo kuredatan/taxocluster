@@ -8,6 +8,8 @@ from actions import clusteringAct,printTreeAct,parseList
 from featuresVector import featuresCreate
 from preformat import process
 from misc import mergeList
+from computeDistances import computeDistanceMatrix,dist1,dist2
+from parsingMatrix import importMatrixToDict
 
 #/!\ The list of samples ID is supposed to be the same as the list of .match files! Each .match file must correspond to one single sample!
 def main():
@@ -55,8 +57,45 @@ def main():
         s.exit(0)
     print "-- End of construction\n"
     dataArray = [samplesInfoList,infoList,idSequences,sampleList,matchingNodes,paths,nodesListTree,taxoTree]
+    filesList = sb.check_output("ls ./meta | awk '/.dist/'",shell=True).split()
+    if not filesList:
+        print "/!\ Computing distance matrix... (1/2)"
+        computeDistanceMatrix(dist1,dataArray)
+        print "/!\ Computing distance matrix... (2/2)"
+        computeDistanceMatrix(dist2,dataArray)
+        print "-- End of computation."
+    else:
+        answer = None
+        done = False
+        while not done and not (answer == "exit" or answer == "exit()" or answer == "quit" or answer == "quit()"):
+            try:
+                answer = raw_input("Do you want to compute distance matrix for another value of q or import pre-computed matrices? compute/import\n")
+                if answer == "compute":
+                    print "/!\ Computing distance matrix..."
+                    computeDistanceMatrix(dist2,dataArray)
+                    print "-- End of computation."
+                    filenameDist1 = raw_input("What is the file name for 'matched' distance matrix?\n")
+                    filenameDist2 = raw_input("What is the file name for 'consensus' distance matrix to select?\n")
+                    dist1Dict = importMatrixToDict(filenameDist1,dataArray)
+                    dist2Dict = importMatrixToDict(filenameDist2,dataArray)
+                    dataArray.append(dist1Dict)
+                    dataArray.append(dist2Dict)
+                    done = True
+                elif answer == "import":
+                    filenameDist1 = raw_input("What is the file name for 'matched' distance matrix?\n")
+                    filenameDist2 = raw_input("What is the file name for 'consensus' distance matrix to select?\n")
+                    dist1Dict = importMatrixToDict(filenameDist1,dataArray)
+                    dist2Dict = importMatrixToDict(filenameDist2,dataArray)
+                    dataArray.append(dist1Dict)
+                    dataArray.append(dist2Dict)
+                    done = True
+                else:
+                    print "\n/!\ You should answer by 'compute' or 'import'!"
+                    raise ValueError
+            except ValueError:
+                continue
     answer = ""
-    while not ((answer == "exit") or (answer == "exit()") or (answer == "quit")):
+    while not ((answer == "exit") or (answer == "exit()") or (answer == "quit") or (answer == "quit()")):
         try:
             print "What do you want to do?"
             print "[Write down the number matching with the action required. Details are in README file]"

@@ -20,4 +20,4 @@ def graphNO(graph):
                 data += "%d -- %d; \n"%(i,j)
                 #data += "%s -- %s [label=%s]; \n"%(namei,namej,str(distance))
     data += " } \n"
-    writeFile(data)
+    writeFile(data,"","dot")

@@ -79,6 +79,9 @@ Parses data table stored at /meta.
 **** parsingMatch.py ****
 Parses MATCH files stored at /meta/match.
 
+**** parsingMatrix.py ****
+Allows to get the distance matrix stored at /meta.
+
 **** parsingTree.py ****
 Parses .tree files stored at /meta.
 
@@ -91,6 +94,10 @@ Helps saving results in files.
 -----------------------------------------------------------------------------------------------------------------
 
 Comments:
+
+*** To clean the folder of unnecessary files ***
+- Run ./clean.sh
+- In case it would not execute, write in the terminal "chmod +rwx clean.sh"
 
 *** Before starting TAXOCLUSTER ***
 - Start process in preformat.py /!\ Beware: multithreading!

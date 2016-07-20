@@ -10,7 +10,7 @@ from dotModule import graphNO
 from compareClusters import compareCluster,compareCenters
 from kMeans import kMeans
  
-#@dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree]
+#@dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree,dist1Dict,dist2Dict]
 
 integer = re.compile("[0-9]+")
 
@@ -100,7 +100,8 @@ def clusteringAct(dataArray):
     trimmedList = trimList(dataArray[3],startSet)
     print "/!\ Clustering with the first distance..."
     #@distanceInClusters is a list of lists of (sample,sum of all distances from this sample to others samples in the same cluster)
-    kClusters,_,distanceDict,distanceInClusters = kMeans(trimmedList,numberClass,kClusters,startSet,dist1,dataArray)
+    #@dataArray[8] = dist1Dict
+    kClusters,_,distanceDict,distanceInClusters = kMeans(trimmedList,numberClass,kClusters,startSet,dataArray[8],dataArray)
     print "-- End of first clustering --"
     #Deletes samples in cluster that are too far from the others
     kClusters = cleanClusters(kClusters,distanceInClusters)
@@ -116,7 +117,8 @@ def clusteringAct(dataArray):
         raise ValueError
     print "/!\ Clustering with the second distance..."
     #@distanceMatrix is the distance dictionary (key=(sample1,sample2),value=distance between sample1 and sample2)
-    kClusters,meanSamples,distanceDict,_ = kMeans(trimmedList,numberClass,kClusters,startSet,dist2,dataArray,q)
+    #@dataArray[9] = dist2Dict
+    kClusters,meanSamples,distanceDict,_ = kMeans(trimmedList,numberClass,kClusters,startSet,dataArray[9],dataArray,q)
     print "-- End of second clustering --"
     print "Printing the",numberClass,"clusters:"
     i = 1
