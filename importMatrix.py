@@ -9,7 +9,7 @@ def importMatrixToDict(filename,dataArray):
     file_matrix.close()
     n = len(lines)
     m = len(lines[0].split(" | "))
-    ln = len(filenames)
+    ln = len(dataArray[3])
     values = []
     for i in range(ln):
         for j in range(i+1,ln):

@@ -55,6 +55,9 @@ Create features vector for each patient.
 **** /files ****
 Stores written files using writeOnFiles functions.
 
+**** importMatrix.py ****
+Allows to get the distance matrix stored at /meta.
+
 **** kMeans.py ****
 Implements K-Means Algorithm.
 
@@ -78,9 +81,6 @@ Parses data table stored at /meta.
 
 **** parsingMatch.py ****
 Parses MATCH files stored at /meta/match.
-
-**** parsingMatrix.py ****
-Allows to get the distance matrix stored at /meta.
 
 **** parsingTree.py ****
 Parses .tree files stored at /meta.

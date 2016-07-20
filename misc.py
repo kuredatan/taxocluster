@@ -276,20 +276,25 @@ def setOperations(paths,nodesList,allNodes):
         print path
         if path:
             pathsNodes.append(path)
-    commonPaths = []
+    commonPath = []
     n = minList([len(path) for path in pathsNodes])
     i = 0
     #As long as paths in @pathsNodes are not empty
     while (i < n) and pathsNodes[0] and isEqual(pathsNodes):
-        commonPaths.append(pathsNodes[0][0])
+        commonPath.append(pathsNodes[0][0])
         pathsNodes = [ path[1:] for path in pathsNodes ]
         i += 1
     return commonPath,pathsNodes
 
 #Computes LCA from the list paths of a TaxoTree
 def taxoLCA(paths,nodesList,allNodes=False):
-    commonPaths,_ = setOperations(paths,nodesList,allNodes)
-    return commonPaths[-1]
+    n = len(nodesList)
+    if not n:
+        return []
+    commonPath,_ = setOperations(paths,nodesList,allNodes)
+    if not commonPath:
+        return []
+    return commonPath[-1]
 
 #Checks if the elements in @parselist belong to @datalist else returns an error
 def isInDatabase(parseList,dataList):

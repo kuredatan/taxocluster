@@ -9,7 +9,7 @@ from featuresVector import featuresCreate
 from preformat import process
 from misc import mergeList
 from computeDistances import computeDistanceMatrix,dist1,dist2
-from parsingMatrix import importMatrixToDict
+from importMatrix import importMatrixToDict
 
 #/!\ The list of samples ID is supposed to be the same as the list of .match files! Each .match file must correspond to one single sample!
 def main():

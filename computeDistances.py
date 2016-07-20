@@ -1,6 +1,6 @@
 import numpy as np
 
-from misc import getCorrespondingID,memList,mergeList,taxoLCA
+from misc import getCorrespondingID,memList,mergeList,taxoLCA,inf
 from taxoTree import TaxoTree
 from writeOnFiles import writeFile
 
@@ -25,6 +25,7 @@ def dist2(sample1,sample2,dataArray,q):
     #@dataArray[4] = matchingNodes, dictionary of (key=sample,value=list of nodes matched in this sample)
     nodes1 = dataArray[4].get(sample1)
     nodes2 = dataArray[4].get(sample2)
+    print len(nodes1),len(nodes2)
     print "start taxoLCA"
     nodeLCA1 = taxoLCA(dataArray[7].paths,nodes1)
     print "end taxoLCA (1)"
@@ -33,6 +34,8 @@ def dist2(sample1,sample2,dataArray,q):
     #@dataArray[7] = taxoTree
     #Looking for the subtree rooted at the LCA of the matched nodes
     #that is the "induced tree"
+    if not nodeLCA1 or not nodeLCA2:
+        return inf
     tree1 = dataArray[7].search(nodeLCA1[0],nodeLCA1[1])
     tree2 = dataArray[7].search(nodeLCA2[0],nodeLCA2[1])
     leaves1,leavesNumber1 = tree1.leaves(False)
