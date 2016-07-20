@@ -252,6 +252,8 @@ def isLeaf(paths,name,rank,allNodes):
 
 #@initList is a list of integers
 def minList(initList):
+    if not initList:
+        return None
     mini = initList[0]
     for x in initList[1:]:
         if mini > x:
@@ -266,11 +268,12 @@ def isEqual(pathsNodes):
         b = (path[0] == pathsNodes[0][0])
     return b
 
-def setOperations(paths,nodesList,allNodes=False):
+def setOperations(paths,nodesList,allNodes):
     pathsNodes = []
     n = len(paths)
     for node in nodesList:
         path = selectPath(paths,node[0],node[1],n)
+        print path
         if path:
             pathsNodes.append(path)
     commonPaths = []
@@ -285,7 +288,6 @@ def setOperations(paths,nodesList,allNodes=False):
 
 #Computes LCA from the list paths of a TaxoTree
 def taxoLCA(paths,nodesList,allNodes=False):
-    n = len(nodesList)
     commonPaths,_ = setOperations(paths,nodesList,allNodes)
     return commonPaths[-1]
 

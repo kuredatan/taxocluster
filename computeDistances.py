@@ -25,8 +25,11 @@ def dist2(sample1,sample2,dataArray,q):
     #@dataArray[4] = matchingNodes, dictionary of (key=sample,value=list of nodes matched in this sample)
     nodes1 = dataArray[4].get(sample1)
     nodes2 = dataArray[4].get(sample2)
+    print "start taxoLCA"
     nodeLCA1 = taxoLCA(dataArray[7].paths,nodes1)
+    print "end taxoLCA (1)"
     nodeLCA2 = taxoLCA(dataArray[7].paths,nodes2)
+    print "end taxoLCA(2)"
     #@dataArray[7] = taxoTree
     #Looking for the subtree rooted at the LCA of the matched nodes
     #that is the "induced tree"

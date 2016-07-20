@@ -3,6 +3,22 @@ import sys as s
 from parsingMatch import parseAllFact
 from parsingFasta import parseFasta
 
+def sanitizeNode(node):
+    if len(node) == 2:
+        if (node[0][0] == " "):
+            node[0] = node[0][1:]
+        if (node[0][-1] == " "):
+            node[0] = node[0][:-1]
+        if (node[1][0] == " "):
+            node[1] = node[1][1:]
+        if (node[1][-1] == " "):
+            node[1] = node[1][:-1]
+        return node
+    else:
+        #It means node cannot appear in the taxonomic tree
+        return None    
+        
+    
 #@allMatches is a dictionary of (key=sample ID,value=list of sequences ID matching a read in this sample)
 #@idSequences is a dictionary of (key=identifier of node,value=(name,rank of node))
 #@filenames is the list of .match file names == list of samples ID /!\
@@ -15,7 +31,9 @@ def getMatchingNodes(allMatches,idSequences,filenames):
         if not (matchingSequencesID == None):
             for sequenceID in matchingSequencesID:
                 node,_ = idSequences.get(sequenceID)
-                matchingNodesInThisSample.append(node)
+                cleanNode = sanitize(node)
+                if cleanNode:
+                    matchingNodesInThisSample.append(cleanNode)
             matchingNodes[sample] = matchingNodesInThisSample
         else:
             print "The sample \'",sample,"\' could not be processed."
