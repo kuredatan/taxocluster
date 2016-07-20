@@ -5,12 +5,11 @@ import re
 from writeOnFiles import writeFile
 from taxoTree import TaxoTree,printTree
 from misc import isInDatabase,partitionSampleByMetadatumValue,cleanClusters,trimList,convertClustersIntoGraph,sanitize
-from computeDistances import dist1,dist2
 from dotModule import graphNO
 from compareClusters import compareCluster,compareCenters
 from kMeans import kMeans
  
-#@dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree,dist1Dict,dist2Dict]
+#@dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree,distMatchedDict,distConsensusDict]
 
 integer = re.compile("[0-9]+")
 
@@ -91,16 +90,17 @@ def clusteringAct(dataArray):
     print dataArray[1]
     metadatum = sanitize(raw_input("Select the metadatum among those above to cluster the set of samples. [e.g. " + dataArray[1][0] + "]\n")).split(";")[0]
     isInDatabase([metadatum],dataArray[1])
-    valueSet,clusters = partitionSampleByMetadatumValue([metadatum],dataArray[1],dataArray[0])
+    valueSet,clusters1 = partitionSampleByMetadatumValue([metadatum],dataArray[1],dataArray[0])
+    clusters = [cluster[0][0] for cluster in clusters1]
     #that is, k in K-means Algorithm
     numberClass = len(valueSet)
-    startSet = [cluster[0] for cluster in clusters]
+    startSet = [cluster for cluster in clusters]
     #Selects the starting samples of each cluster
-    kClusters = [[cluster[0]] for cluster in clusters]
+    kClusters = [[cluster] for cluster in clusters]
     trimmedList = trimList(dataArray[3],startSet)
     print "/!\ Clustering with the first distance..."
     #@distanceInClusters is a list of lists of (sample,sum of all distances from this sample to others samples in the same cluster)
-    #@dataArray[8] = dist1Dict
+    #@dataArray[8] = distMatchedDict
     kClusters,_,distanceDict,distanceInClusters = kMeans(trimmedList,numberClass,kClusters,startSet,dataArray[8],dataArray)
     print "-- End of first clustering --"
     #Deletes samples in cluster that are too far from the others
@@ -117,7 +117,7 @@ def clusteringAct(dataArray):
         raise ValueError
     print "/!\ Clustering with the second distance..."
     #@distanceMatrix is the distance dictionary (key=(sample1,sample2),value=distance between sample1 and sample2)
-    #@dataArray[9] = dist2Dict
+    #@dataArray[9] = distConsensusDict
     kClusters,meanSamples,distanceDict,_ = kMeans(trimmedList,numberClass,kClusters,startSet,dataArray[9],dataArray,q)
     print "-- End of second clustering --"
     print "Printing the",numberClass,"clusters:"

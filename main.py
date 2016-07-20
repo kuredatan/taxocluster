@@ -8,7 +8,7 @@ from actions import clusteringAct,printTreeAct,parseList
 from featuresVector import featuresCreate
 from preformat import process
 from misc import mergeList
-from computeDistances import computeDistanceMatrix,dist1,dist2
+from computeDistances import computeDistanceMatrix,distMatched,distConsensus
 from importMatrix import importMatrixToDict
 
 #/!\ The list of samples ID is supposed to be the same as the list of .match files! Each .match file must correspond to one single sample!
@@ -61,12 +61,12 @@ def main():
     if not filesList:
         print "/!\ Computing distance matrix... (1/2)"
         start = time()
-        computeDistanceMatrix(dist1,dataArray)
+        computeDistanceMatrix(distMatched,dataArray)
         end = time()
         print "TIME:",end-start,"sec"
         print "/!\ Computing distance matrix... (2/2)"
         start = time()
-        computeDistanceMatrix(dist2,dataArray)
+        computeDistanceMatrix(distConsensus,dataArray)
         end = time()
         print "TIME:",end-start,"sec"
         print "-- End of computation."
@@ -77,28 +77,25 @@ def main():
             answer = raw_input("Do you want to compute distance matrix for another value of q or import pre-computed matrices? compute/import\n")
             if answer == "compute":
                 print "/!\ Computing distance matrix..."
-                computeDistanceMatrix(dist2,dataArray)
+                computeDistanceMatrix(distConsensus,dataArray)
                 print "-- End of computation."
                 done = True
             elif not (answer == "import"):
                 print "\n/!\ You should answer by 'compute' or 'import'!"
                 raise ValueError
             done = True
-            try:
-                undone = True
-                while undone:
-                    q = raw_input("Choose q.\n")
-                    if float(q) < 0 or float(q) > 1:
-                        print "\n/!\ ERROR: Wrong value of q [should be between 0 and 1]:",q,"."
-                        raise IndexError
-                    else:
-                        undone = False
-            except IndexError:
-                ()
-            dist1Dict = importMatrixToDict("matrix1",dataArray)
-            dist2Dict = importMatrixToDict("matrix2" + q,dataArray)
-            dataArray.append(dist1Dict)
-            dataArray.append(dist2Dict)
+            undone = True
+            while undone:
+                q = raw_input("Choose q.\n")
+                if float(q) < 0 or float(q) > 1:
+                    print "\n/!\ ERROR: Wrong value of q [should be between 0 and 1]:",q,"."
+                    continue
+                else:
+                    undone = False
+            distMatchedDict = importMatrixToDict("matrix1",dataArray)
+            distConsensusDict = importMatrixToDict("matrix2" + q,dataArray)
+            dataArray.append(distMatchedDict)
+            dataArray.append(distConsensusDict)
             print "/!\ Matrices imported."
         except ValueError:
             continue

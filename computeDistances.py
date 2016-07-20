@@ -8,7 +8,7 @@ from writeOnFiles import writeMatrix
 
 #distance(@sample1,@sample2) = |number of nodes matched in @sample1| + |number of nodes matched in @sample2| - 2*|number of nodes matched in both samples|
 #@q is useless here
-def dist1(sample1,sample2,dataArray,q):
+def distMatched(sample1,sample2,dataArray,q):
     #@dataArray[4] = matchingNodes, dictionary of (key=sample,value=list of nodes matched in this sample)
     nodes1 = dataArray[4].get(sample1)
     nodes2 = dataArray[4].get(sample2)
@@ -16,7 +16,7 @@ def dist1(sample1,sample2,dataArray,q):
     return numberl1 + numberl2 - 2*number
 
 #distance(@sample1,@sample2) = |L1| + |L2| - q*(|N1interM2| + |N2interM1|) - |M1interM2| (see README for notations)
-def dist2(sample1,sample2,dataArray,q):
+def distConsensus(sample1,sample2,dataArray,q):
     #@dataArray[4] = matchingNodes, dictionary of (key=sample,value=list of nodes matched in this sample)
     nodes1 = dataArray[4].get(sample1)
     nodes2 = dataArray[4].get(sample2)
@@ -44,7 +44,7 @@ def dist2(sample1,sample2,dataArray,q):
 
 def computeDistanceMatrix(dist,dataArray):
     q = 0.5
-    if dist == dist2:
+    if dist == distConsensus:
         q = float(raw_input("Choose the value of q to compute [q should be between 0 and 1].\n"))
         if q > 1 or q < 0:
             print "\n/!\ ERROR: Wrong value of q [ shoudl be between 0 and 1 ]:",q,"."
@@ -58,7 +58,7 @@ def computeDistanceMatrix(dist,dataArray):
             distance = dist(dataArray[3][i],dataArray[3][j],dataArray,q)
             matrix[i][j] = distance
             matrix[j][i] = distance
-    if dist == dist1:
+    if dist == distMatched:
         version = "1"
     else:
         version = "2" + str(q)

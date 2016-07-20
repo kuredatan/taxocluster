@@ -1,4 +1,5 @@
 import numpy as np
+import sys as s
 
 #For distance matrices in folder /files
 #Stores the results in a dictionary
@@ -8,7 +9,7 @@ def importMatrixToDict(filename,dataArray):
         file_matrix = open("meta/" + filename + ".dist","r")
     except IOError:
         print "\n/!\ ERROR: Wrong file name",filename,". Maybe this file does not exist."
-        raise ValueError
+        s.exit(0)
     lines = file_matrix.readlines()[3:-3]
     file_matrix.close()
     n = len(lines)
