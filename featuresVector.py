@@ -42,7 +42,7 @@ def featuresCreate(filenames,fastaFileName):
     start = time.time()
     allMatches = parseAllFact(filenames)
     end = time.time()
-    print "TIME:",(end-start)
+    print "TIME:",(end-start),"sec"
     print "/!\ Parsing .fasta files"
     print "[ You may have to wait a few seconds... ]"
     try:

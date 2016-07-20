@@ -86,5 +86,5 @@ def parseFasta(filename):
             idSequences.setdefault(identifier,(nameBact or name,rank))
     sb.call("rm -f meta/newfile.fasta",shell=True)
     end = time()
-    print "TIME .fasta:",(end-start)
+    print "TIME .fasta:",(end-start),"sec"
     return idSequences

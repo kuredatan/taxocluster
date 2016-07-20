@@ -221,7 +221,7 @@ class TaxoTree(object):
             #if node is a leaf
             if not node.children:
                 numberLeaves += 1
-                leavesList.append(node)
+                leavesList.append((node.name,node.rank))
             else:
                 if DFS:
                     nodesList = node.children + nodesList

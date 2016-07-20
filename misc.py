@@ -273,7 +273,6 @@ def setOperations(paths,nodesList,allNodes):
     n = len(paths)
     for node in nodesList:
         path = selectPath(paths,node[0],node[1],n)
-        print path
         if path:
             pathsNodes.append(path)
     commonPath = []

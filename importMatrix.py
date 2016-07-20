@@ -4,7 +4,11 @@ import numpy as np
 #Stores the results in a dictionary
 #dataArray[3] = filenames
 def importMatrixToDict(filename,dataArray):
-    file_matrix = open("meta/" + filename + ".dist","r")
+    try:
+        file_matrix = open("meta/" + filename + ".dist","r")
+    except IOError:
+        print "\n/!\ ERROR: Wrong file name",filename,". Maybe this file does not exist."
+        raise ValueError
     lines = file_matrix.readlines()[3:-3]
     file_matrix.close()
     n = len(lines)

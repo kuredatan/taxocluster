@@ -60,40 +60,48 @@ def main():
     filesList = sb.check_output("ls ./meta | awk '/.dist/'",shell=True).split()
     if not filesList:
         print "/!\ Computing distance matrix... (1/2)"
+        start = time()
         computeDistanceMatrix(dist1,dataArray)
+        end = time()
+        print "TIME:",end-start,"sec"
         print "/!\ Computing distance matrix... (2/2)"
+        start = time()
         computeDistanceMatrix(dist2,dataArray)
+        end = time()
+        print "TIME:",end-start,"sec"
         print "-- End of computation."
-    else:
-        answer = None
-        done = False
-        while not done and not (answer == "exit" or answer == "exit()" or answer == "quit" or answer == "quit()"):
+    answer = None
+    done = False
+    while not done and not (answer == "exit" or answer == "exit()" or answer == "quit" or answer == "quit()"):
+        try:
+            answer = raw_input("Do you want to compute distance matrix for another value of q or import pre-computed matrices? compute/import\n")
+            if answer == "compute":
+                print "/!\ Computing distance matrix..."
+                computeDistanceMatrix(dist2,dataArray)
+                print "-- End of computation."
+                done = True
+            elif not (answer == "import"):
+                print "\n/!\ You should answer by 'compute' or 'import'!"
+                raise ValueError
+            done = True
             try:
-                answer = raw_input("Do you want to compute distance matrix for another value of q or import pre-computed matrices? compute/import\n")
-                if answer == "compute":
-                    print "/!\ Computing distance matrix..."
-                    computeDistanceMatrix(dist2,dataArray)
-                    print "-- End of computation."
-                    filenameDist1 = raw_input("What is the file name for 'matched' distance matrix?\n")
-                    filenameDist2 = raw_input("What is the file name for 'consensus' distance matrix to select?\n")
-                    dist1Dict = importMatrixToDict(filenameDist1,dataArray)
-                    dist2Dict = importMatrixToDict(filenameDist2,dataArray)
-                    dataArray.append(dist1Dict)
-                    dataArray.append(dist2Dict)
-                    done = True
-                elif answer == "import":
-                    filenameDist1 = raw_input("What is the file name for 'matched' distance matrix?\n")
-                    filenameDist2 = raw_input("What is the file name for 'consensus' distance matrix to select?\n")
-                    dist1Dict = importMatrixToDict(filenameDist1,dataArray)
-                    dist2Dict = importMatrixToDict(filenameDist2,dataArray)
-                    dataArray.append(dist1Dict)
-                    dataArray.append(dist2Dict)
-                    done = True
-                else:
-                    print "\n/!\ You should answer by 'compute' or 'import'!"
-                    raise ValueError
-            except ValueError:
-                continue
+                undone = True
+                while undone:
+                    q = raw_input("Choose q.\n")
+                    if float(q) < 0 or float(q) > 1:
+                        print "\n/!\ ERROR: Wrong value of q [should be between 0 and 1]:",q,"."
+                        raise IndexError
+                    else:
+                        undone = False
+            except IndexError:
+                ()
+            dist1Dict = importMatrixToDict("matrix1",dataArray)
+            dist2Dict = importMatrixToDict("matrix2" + q,dataArray)
+            dataArray.append(dist1Dict)
+            dataArray.append(dist2Dict)
+            print "/!\ Matrices imported."
+        except ValueError:
+            continue
     answer = ""
     while not ((answer == "exit") or (answer == "exit()") or (answer == "quit") or (answer == "quit()")):
         try:

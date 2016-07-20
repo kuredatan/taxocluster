@@ -2,35 +2,26 @@ import numpy as np
 
 from misc import getCorrespondingID,memList,mergeList,taxoLCA,inf
 from taxoTree import TaxoTree
-from writeOnFiles import writeFile
+from writeOnFiles import writeMatrix
 
 #@dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree]
 
 #distance(@sample1,@sample2) = |number of nodes matched in @sample1| + |number of nodes matched in @sample2| - 2*|number of nodes matched in both samples|
 #@q is useless here
 def dist1(sample1,sample2,dataArray,q):
-    print sample1,sample2
     #@dataArray[4] = matchingNodes, dictionary of (key=sample,value=list of nodes matched in this sample)
     nodes1 = dataArray[4].get(sample1)
-    print "/!\ Got access to matching nodes (1)..."
     nodes2 = dataArray[4].get(sample2)
-    print "/!\ Got access to matching nodes (2)..."
     _,number,numberl1,numberl2 = memList(nodes1,nodes2)
-    print "/!\ Got common nodes..."
     return numberl1 + numberl2 - 2*number
 
 #distance(@sample1,@sample2) = |L1| + |L2| - q*(|N1interM2| + |N2interM1|) - |M1interM2| (see README for notations)
 def dist2(sample1,sample2,dataArray,q):
-    print sample1,sample2
     #@dataArray[4] = matchingNodes, dictionary of (key=sample,value=list of nodes matched in this sample)
     nodes1 = dataArray[4].get(sample1)
     nodes2 = dataArray[4].get(sample2)
-    print len(nodes1),len(nodes2)
-    print "start taxoLCA"
     nodeLCA1 = taxoLCA(dataArray[7].paths,nodes1)
-    print "end taxoLCA (1)"
     nodeLCA2 = taxoLCA(dataArray[7].paths,nodes2)
-    print "end taxoLCA(2)"
     #@dataArray[7] = taxoTree
     #Looking for the subtree rooted at the LCA of the matched nodes
     #that is the "induced tree"
@@ -40,15 +31,10 @@ def dist2(sample1,sample2,dataArray,q):
     tree2 = dataArray[7].search(nodeLCA2[0],nodeLCA2[1])
     leaves1,leavesNumber1 = tree1.leaves(False)
     leaves2,leavesNumber2 = tree2.leaves(False)
-    #M1interM2
-    commonMatchedNodes = 0
-    #N1interM2
-    specificNodes1 = 0
-    #N2interM1
-    specificNodes2 = 0
     leaves = mergeList(leaves1,leaves2)
     matchedBy1,_,_,_ = memList(leaves,nodes1)
     matchedBy2,_,_,_ = memList(leaves,nodes2)
+    #M1interM2, N1interM2, N2interM1
     _,numberCommon,number1,number2 = memList(matchedBy1,matchedBy2)
     return leavesNumber1 + leavesNumber2 - q*(number1 + number2) - numberCommon
 
@@ -72,4 +58,8 @@ def computeDistanceMatrix(dist,dataArray):
             distance = dist(dataArray[3][i],dataArray[3][j],dataArray,q)
             matrix[i][j] = distance
             matrix[j][i] = distance
-    writeFile(matrix,"Distance matrix","matrix")
+    if dist == dist1:
+        version = "1"
+    else:
+        version = "2" + str(q)
+    writeMatrix("matrix" + version,matrix,"Distance matrix")
