@@ -82,7 +82,7 @@ def sanitizeNode(stringNode):
     return "(" + stringNode[0] + "," + stringNode[1] + ")"
 
 #____________________________________________________________________________
-#@dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree]
+#@dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree,distMatchedDict,distConsensusDict]
 
 #Actions
 #Improvement will include a whole list of metadata to cluster

@@ -13,7 +13,7 @@
 #Nodes and leaves are only distinguinshed by children=[]
 
 from parsingTree import parseTree
-from misc import containsSpecie,mem,selectPath,compare
+from misc import containsSpecie,selectPath,compare
 
 class TaxoTree(object):
     #

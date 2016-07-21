@@ -1,6 +1,4 @@
-from misc import mem
-
-#@dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree]
+#@dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree,distMatchedDict,distConsensusDict]
 
 #@node is a (name,rank) pair
 #@nodesListList is a list of lists of (name,rank) pairs
@@ -9,7 +7,7 @@ def isCommon(node,nodesListList):
     n = len(nodesListList)
     i = 0
     while b and i < n:
-        b = mem(node,nodesListList[i])
+        b = (node in nodesListList[i])
         i += 1
     return b
 

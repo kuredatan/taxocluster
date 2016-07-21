@@ -5,7 +5,7 @@ from random import randint
 from copy import deepcopy
 from time import time
 
-from misc import inf,mem
+from misc import inf
 
 #@dist is the distance used to compute calculus
 #@elementSet is the set of elements to cluster
@@ -47,15 +47,10 @@ def updateMean(meanSample,cluster,distanceDict):
 
 #@startSet solves the problem of initialization in K-Means Algorithm
 def kMeans(elementSet,k,kClusters,startSet,distanceDict,dataArray,q=0.5):
-    print kClusters
-    print startSet
-    print elementSet
-    import sys as s
-    s.exit(0)
     start = time()
     totalElementSet = elementSet + startSet
     n = len(totalElementSet)
-    if not (n > len(dataArray[3])):
+    if not (n >= len(dataArray[3])):
         print "\n/!\ ERROR: Different lengths of set of samples",len(dataArray[3]),n,"."
         raise ValueError
     meanSamples = [x for x in startSet]
@@ -76,6 +71,7 @@ def kMeans(elementSet,k,kClusters,startSet,distanceDict,dataArray,q=0.5):
                 if distance < minDist:
                     minDist = distance
                     minCluster = clusterIndex
+            print "minCluster",minCluster,"k",k,"distance len",len(distanceInClusters),"."
             #Deletes the element from another cluster, if it exists
             currAssign = currAssignments[unassignedElement]
             #Meaning the element has already been assigned to another cluster

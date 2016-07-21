@@ -93,8 +93,8 @@ def truncate(number, digitNumber):
 #If the elements in lists are tuples, it will sorted using lexigraphical order with suitable order for each projection
 #Sorting allows to run in worst case complexity of O(nlog(n) + mlog(m)) where n,m are the length of the two lists
 def trimList(list1,list2):
-    lst1 = sorted(list1,key=lambda x:x)
-    lst2 = sorted(list2,key=lambda x:x)
+    lst1 = sorted(list1)
+    lst2 = sorted(list2)
     trimList = []
     while lst1 and lst2:
         x1 = lst1.pop()
@@ -112,8 +112,8 @@ def trimList(list1,list2):
 
 #Merge the elements of both lists, deleting multiple occurrences
 def mergeList(list1,list2):
-    lst1 = sorted(list1,key=lambda x:x)
-    lst2 = sorted(list1,key=lambda x:x)
+    lst1 = sorted(list1)
+    lst2 = sorted(list1)
     union = []
     while lst1 and lst2:
         x1 = lst1.pop()
@@ -200,14 +200,6 @@ def sanitize(name):
         sName = sName + sLs[-1]
     return sName
 
-#is member function
-def mem(x,ls):
-    n = len(ls)
-    for i in range(n):
-        if (x == ls[i]):
-            return True
-    return False
-
 def containsSpecie(path,name,rank):
     for x in path:
         if (x[0] == name) and (x[1] == rank):
@@ -275,6 +267,9 @@ def setOperations(paths,nodesList,allNodes):
         path = selectPath(paths,node[0],node[1],n)
         if path:
             pathsNodes.append(path)
+        #else:
+            #print "/!\ Node",node,"not in taxonomic tree."
+    print pathsNodes
     commonPath = []
     n = minList([len(path) for path in pathsNodes])
     i = 0
@@ -283,6 +278,7 @@ def setOperations(paths,nodesList,allNodes):
         commonPath.append(pathsNodes[0][0])
         pathsNodes = [ path[1:] for path in pathsNodes ]
         i += 1
+    print commonPath
     return commonPath,pathsNodes
 
 #Computes LCA from the list paths of a TaxoTree
@@ -298,7 +294,7 @@ def taxoLCA(paths,nodesList,allNodes=False):
 #Checks if the elements in @parselist belong to @datalist else returns an error
 def isInDatabase(parseList,dataList):
     for pl in parseList:
-        if not mem(pl,dataList):
+        if not (pl in dataList):
             n = len(dataList)
             if not n:
                 print "\n/!\ ERROR: [BUG] [actions/isInDatabase] Empty list."
