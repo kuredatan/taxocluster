@@ -11,11 +11,12 @@ def expectList(vList):
         raise ValueError
     exp = 0
     for i in range(n):
-        exp += vList[i]/n
+        if vList[i]:
+            exp += vList[i]/n
     return exp
 
 def standardDeviationList(vList):
-    vProductList = [x*x for x in vList]
+    vProductList = [x*x for x in vList if x]
     expProd = expectList(vProductList)
     exp = expectList(vList)
     expS = exp*exp
@@ -28,5 +29,6 @@ def normalizeList(valueList):
         raise ValueError
     normList = []
     for value in valueList:
-        normList.append((value-exp)/stDeviation)
+        if value:
+            normList.append((value-exp)/stDeviation)
     return normList

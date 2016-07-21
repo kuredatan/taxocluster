@@ -8,6 +8,7 @@ from misc import isInDatabase,partitionSampleByMetadatumValue,cleanClusters,trim
 from dotModule import graphNO
 from compareClusters import compareCluster,compareCenters
 from kMeans import kMeans
+from extractNodes import extractCommonNodes
  
 #@dataArray = [samplesInfoList,infoList,idSequences,filenames,matchingNodes,paths,nodesListTree,taxoTree,distMatchedDict,distConsensusDict]
 
@@ -128,8 +129,7 @@ def clusteringAct(dataArray):
     for cluster in kClusters:
         print "\n-- Cluster #",i
         print "Size:",len(cluster)
-        for x in cluster:
-            print x
+        print cluster
         i += 1
     print "Score of the clustering (comprised between 0 and 1):"
     print "The more it is close to 1, the more the clustering is relevant."
@@ -140,13 +140,13 @@ def clusteringAct(dataArray):
     #Score by using first method of comparison
     compareClusterScore = 0
     if not (len(kClustersCopy) == numberClass == len(clustersCopy)):
-        print "\n/!\ ERROR: Length error in clustering:",k,len(kClustersCopy),len(clustersCopy),"."
+        print "\n/!\ ERROR: Length error in clustering:",numberClass,len(kClustersCopy),len(clustersCopy),"."
         raise ValueError
     while kClustersCopy and clustersCopy:
         cl1 = kClustersCopy.pop()
         cl2 = clustersCopy.pop()
         compareClusterScore += compareCluster(cl1,cl2)
-    compareClusterScore = compareClusterScore/k
+    compareClusterScore = compareClusterScore/numberClass
     #Score by using second method of comparison
     compareCentersScore = compareCenters(meanSamples,distanceDict,numberClass)
     print "Compare clusters score is:",compareClusterScore,"."
@@ -161,9 +161,8 @@ def clusteringAct(dataArray):
             data += "\n\n-- Cluster #" + str(i)
             data += "\nSize: " + str(len(cluster))
             if (answer2 == "Y"):
-                data += "\nSet of common nodes: " + str(commonList[i]) 
-            for x in cluster:
-                data += "\n" + str(x)
+                data += "\nSet of common nodes: " + str(commonList[i])
+            data += "\n" + str(cluster)
             i += 1
         data += "\n\nCompare clusters score is:" + str(compareClustersScore)
         data += "\n\nCompare centers score is:" + str(compareCentersScore)
