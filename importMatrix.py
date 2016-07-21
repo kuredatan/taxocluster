@@ -34,3 +34,7 @@ def importMatrixToDict(filename,dataArray):
             j += 1
     return distDict
     
+def test():
+    from parsingInfo import parseInfo
+    m = importMatrixToDict("matrix1",[[],[],[],[sample[0] for sample in parseInfo("Info")[0]]])
+    print m.get(("AMLA-J0","AMLA-J0")),m.get(("BRAL-J45","BRAL-J45")),m.get(("DUGA-J0","DUGA-J0")),m.get(("GATE-J0","GATE-J0"))

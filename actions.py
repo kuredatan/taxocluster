@@ -105,20 +105,22 @@ def clusteringAct(dataArray):
     print "/!\ Clustering with the first distance..."
     #@distanceInClusters is a list of lists of (sample,sum of all distances from this sample to others samples in the same cluster)
     #@dataArray[8] = distMatchedDict
-    kClusters,_,distanceDict,distanceInClusters = kMeans(trimmedList,numberClass,kClusters,startSet,dataArray[8],dataArray)
+    kClusters,meanSamples,distanceDict,distanceInClusters = kMeans(trimmedList,numberClass,kClusters,startSet,dataArray[8],dataArray)
     print "-- End of first clustering --"
     #Deletes samples in cluster that are too far from the others
-    kClusters = cleanClusters(kClusters,distanceInClusters)
-    sampleSet = []
-    for cluster in kClusters:
-        sampleSet += cluster
-    startSet = [cluster for cluster in kClusters]
-    kClusters = [[start] for start in startSet]
-    trimmedList = trimList(sampleSet,startSet)
+    #kClusters = cleanClusters(kClusters,distanceInClusters)
+    #sampleSet = []
+    #for cluster in kClusters:
+    #    sampleSet += cluster
+    #print "sampleSet",sampleSet
+    #startSet = [cluster[0] for cluster in kClusters]
+    startSet = [meanSample for meanSample in meanSamples]
+    #kClusters = [[start] for start in startSet]
+    trimmedList = trimList(dataArray[3],startSet) #sampleSet,startSet)
     print "/!\ Clustering with the second distance..."
     #@distanceDict is the distance dictionary (key=(sample1,sample2),value=distance between sample1 and sample2)
     #@dataArray[9] = distConsensusDict
-    kClusters,meanSamples,distanceDict,_ = kMeans(trimmedList,numberClass,kClusters,startSet,dataArray[9],dataArray,q)
+    kClusters,meanSamples,distanceDict,_ = kMeans(trimmedList,numberClass,kClusters,startSet,dataArray[9],dataArray,meanSamples)
     print "-- End of second clustering --"
     print "Printing the",numberClass,"clusters:"
     i = 1
@@ -132,16 +134,16 @@ def clusteringAct(dataArray):
     print "Score of the clustering (comprised between 0 and 1):"
     print "The more it is close to 1, the more the clustering is relevant."
     #The clustering obtained with the K-Means method
-    kClusterCopy = [cluster for cluster in kClusters]
+    kClustersCopy = [cluster for cluster in kClusters]
     #The clustering obtained by comparing the values of the metadatum
     clustersCopy = [cluster for cluster in clusters]
     #Score by using first method of comparison
     compareClusterScore = 0
-    if not (len(kClustersCopy) == k == len(clustersCopy)):
+    if not (len(kClustersCopy) == numberClass == len(clustersCopy)):
         print "\n/!\ ERROR: Length error in clustering:",k,len(kClustersCopy),len(clustersCopy),"."
         raise ValueError
-    while kClusterCopy and clustersCopy:
-        cl1 = kClusterCopy.pop()
+    while kClustersCopy and clustersCopy:
+        cl1 = kClustersCopy.pop()
         cl2 = clustersCopy.pop()
         compareClusterScore += compareCluster(cl1,cl2)
     compareClusterScore = compareClusterScore/k

@@ -77,7 +77,10 @@ def main():
             answer = raw_input("Do you want to compute distance matrix for another value of q or import pre-computed matrices? compute/import\n")
             if answer == "compute":
                 print "/!\ Computing distance matrix..."
+                start = time()
                 computeDistanceMatrix(distConsensus,dataArray)
+                end = time()
+                print "TIME:",end-start,"sec"
                 print "-- End of computation."
                 done = True
             elif not (answer == "import"):
@@ -86,9 +89,11 @@ def main():
             done = True
             undone = True
             while undone:
-                q = raw_input("Choose q.\n")
+                qList = sb.check_output("ls ./meta | awk '/.dist/' | sed 's/matrix[1-2]//g' | sed 's/.dist//g'",shell=True).split()
+                print "List of pre-computed q:",qList
+                q = raw_input("Choose q among the ones above.\n")
                 if float(q) < 0 or float(q) > 1:
-                    print "\n/!\ ERROR: Wrong value of q [should be between 0 and 1]:",q,"."
+                    print "\n/!\ ERROR: Wrong value of q [should be between 0 and 1, and be already computed]:",q,"."
                     continue
                 else:
                     undone = False
