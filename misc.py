@@ -9,15 +9,6 @@ inf = 100000000000000
 
 integer = re.compile("[0-9]+")
 
-def getCorrespondingID(element,elementList,listLength):
-    i = 0
-    while i < listLength and not (element == elementList):
-        i += 1
-    if (i == listLength):
-        print "\n/!\ ERROR: ",element,"not in list."
-        raise ValueError
-    return i
-
 #Return the common elements (with duplicates) to l1 and l2
 #and the length of both lists and of common lists
 def memList(l1,l2):
@@ -48,18 +39,17 @@ def memList(l1,l2):
 
 #converts list of clusters @kClusters into a graph (adjacency matrix)
 #@distanceDict is a dictionary (key=(sample1,sample2),value=distance)
-def convertClustersIntoGraph(kClusters,distanceDict,trimmedList,startingSet):
-    elementList = trimmedList + startingSet
-    n = len(elementList)
+#@n is the total number of samples
+def convertClustersIntoGraph(kClusters,distanceDict,n):
     #adjacency matrix
-    graph = [[] * n] * n 
+    graph = [[None] * n] * n
+    numCluster = 0
     for cluster in kClusters:
         m = len(cluster)
         for i1 in range(m):
             for i2 in range(i1+1,m):
-                id1 = getCorrespondingID(cluster[i1],elementList,n)
-                id2 = getCorrespondingID(cluster[i2],elementList,n)
-                graph[i1][i2] = (cluster[i1],cluster[i2],1,distanceDict.get((samplei,samplej)))
+                graph[i1 + numCluster][i2 + numCluster] = (cluster[i1],cluster[i2],1,distanceDict.get((cluster[i1],cluster[i2])))
+        numCluster += m
     return graph
 
 def cleanClusters(clusters,distanceInClusters):

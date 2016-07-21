@@ -83,9 +83,6 @@ Parses data table stored at /meta.
 **** parsingMatch.py ****
 Parses MATCH files stored at /meta/match.
 
-**** parsingTree.py ****
-Parses .tree files stored at /meta.
-
 **** taxoTree.py ****
 Implements a modified version of taxonomic tree.
 
@@ -101,8 +98,8 @@ Comments:
 - In case it would not execute, write in the terminal "chmod +rwx clean.sh"
 
 *** Before starting TAXOCLUSTER ***
-- Start process in preformat.py /!\ Beware: multithreading! /!\ Beware: multithreading! To disable multithreading, please comment the "&" in script_format.sh
-OR
+- Start process in preformat.py /!\ Beware: this process uses multithreading! To disable multithreading, please comment the "&" in script_format.sh with a "#". It can take several dozens of minutes.
+OR IF YOU HAVE ALREADY GOT THE .test FILES
 - Create a folder entitled "files" to store your results in main folder.
 - Create a folder entitled "meta" to store your .tree, .fasta files. In "meta" create "match" folder (to put your .match files), and then in "match" create "testfiles" folder.
 
@@ -119,4 +116,6 @@ TaxoCluster --
 - LINUX: do "sudo apt install graphviz". Then you can right-click on the DOT file in "files" and see the graph.
 
 *** In case of an error during parsing ***
-- LINUX: install perl and cut.
+- LINUX: install cut, awk, and sed with "sudo apt [software]".
+- Please be aware the input files should perfectly respect the template of .fasta and .match files.
+

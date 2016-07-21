@@ -1,8 +1,8 @@
 import sys as s
 import subprocess as sb
+from time import time
 
 from parsingInfo import parseInfo
-from parsingTree import parseTree
 from taxoTree import TaxoTree
 from actions import clusteringAct,printTreeAct,parseList
 from featuresVector import featuresCreate
@@ -13,9 +13,6 @@ from importMatrix import importMatrixToDict
 
 #/!\ The list of samples ID is supposed to be the same as the list of .match files! Each .match file must correspond to one single sample!
 def main():
-    tTree = raw_input("Write down the .tree file name of the taxonomic tree in the folder \"meta\" [ without the extension .tree ]\n")
-    if (tTree == ""):
-        tTree = "GGdb2015"
     iMatrix = raw_input("Write down the CSV file name of the data matrix in the folder \"meta\" [ without the extension .csv ]\n")
     if (iMatrix == ""):
         iMatrix = "Info"
@@ -29,12 +26,6 @@ def main():
     except IOError:
         print "\nERROR: Maybe the filename",iMatrix,".csv does not exist in \"meta\" folder.\n"
         s.exit(0)
-    print "..."
-    try:
-        paths,n,nodesListTree = parseTree(tTree)
-    except IOError:
-        print "\nERROR: Maybe the filename",tTree,".tree does not exist in \"meta\" folder.\n"
-        s.exit(0)
     print "-- End of parsing\n"
     result = sb.check_output("ls ./meta/match/testfiles",shell=True)
     sb.call("ls ./meta/match > sampleidlist",shell=True)
@@ -44,17 +35,18 @@ def main():
         print "/!\ Pre-processing files for parsing..."
         process(sampleidlist)
         print "/!\ Pre-processing done."
-    print "/!\ Constructing the whole taxonomic tree..."
-    print "[ You may have to wait a few seconds... ]"
-    taxoTree = TaxoTree("Root").addNode(paths,nodesListTree)
     print "/!\ Constructing the features vectors..."
     sampleList = mergeList(sampleidlist,filenames)
     try:
-        matchingNodes,idSequences = featuresCreate(sampleList,fastaFileName)
+        matchingNodes,idSequences,paths,nodesListTree = featuresCreate(sampleList,fastaFileName)
     except ValueError: 
         print "/!\ ERROR: Please look at the line above."
         print "/!\ ERROR: If the line above is blank, it may be an uncatched ValueError.\n"
         s.exit(0)
+    print "-- End of construction"
+    print "/!\ Constructing the whole taxonomic tree..."
+    print "[ You may have to wait a few seconds... ]"
+    taxoTree = TaxoTree("Root").addNode(paths,nodesListTree)
     print "-- End of construction\n"
     dataArray = [samplesInfoList,infoList,idSequences,sampleList,matchingNodes,paths,nodesListTree,taxoTree]
     filesList = sb.check_output("ls ./meta | awk '/.dist/'",shell=True).split()
@@ -89,7 +81,7 @@ def main():
             done = True
             undone = True
             while undone:
-                qList = sb.check_output("ls ./meta | awk '/.dist/' | sed 's/matrix[1-2]//g' | sed 's/.dist//g'",shell=True).split()
+                qList = sorted(sb.check_output("ls ./meta | awk '/.dist/' | sed 's/matrix[1-2]//g' | sed 's/.dist//g'",shell=True).split())
                 print "List of pre-computed q:",qList
                 q = raw_input("Choose q among the ones above.\n")
                 if float(q) < 0 or float(q) > 1:

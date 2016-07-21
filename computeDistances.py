@@ -1,6 +1,6 @@
 import numpy as np
 
-from misc import getCorrespondingID,memList,mergeList,taxoLCA,inf
+from misc import memList,mergeList,taxoLCA,inf
 from taxoTree import TaxoTree
 from writeOnFiles import writeMatrix
 
@@ -27,8 +27,11 @@ def distConsensus(sample1,sample2,dataArray,q):
     #that is the "induced tree"
     if not nodeLCA1 or not nodeLCA2:
         return inf
-    tree1 = dataArray[7].search(nodeLCA1[0],nodeLCA1[1])
-    tree2 = dataArray[7].search(nodeLCA2[0],nodeLCA2[1])
+    try:
+        tree1 = dataArray[7].search(nodeLCA1[0],nodeLCA1[1])
+        tree2 = dataArray[7].search(nodeLCA2[0],nodeLCA2[1])
+    except ValueError:
+        return inf
     leaves1,leavesNumber1 = tree1.leaves(False)
     leaves2,leavesNumber2 = tree2.leaves(False)
     leaves = mergeList(leaves1,leaves2)

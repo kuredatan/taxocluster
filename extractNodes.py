@@ -2,9 +2,9 @@
 
 #@node is a (name,rank) pair
 #@nodesListList is a list of lists of (name,rank) pairs
-def isCommon(node,nodesListList):
+#@n = len(@nodesListList)
+def isCommon(node,nodesListList,n):
     b = True
-    n = len(nodesListList)
     i = 0
     while b and i < n:
         b = (node in nodesListList[i])
@@ -25,8 +25,9 @@ def extractNodesInCluster(cluster,dataArray):
         print "\n/!\ ERROR: Cluster is empty."
         raise ValueError
     nodesTestList = dataArray[4].get(cluster[-1])
+    n = len(nodesListList)
     for node in nodesTestList:
-        if isCommon(node,nodesListList):
+        if isCommon(node,nodesListList,n):
             commonToCluster.append(node)
     return commonToCluster
 

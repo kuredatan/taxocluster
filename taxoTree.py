@@ -12,7 +12,6 @@
 
 #Nodes and leaves are only distinguinshed by children=[]
 
-from parsingTree import parseTree
 from misc import containsSpecie,selectPath,compare
 
 class TaxoTree(object):
@@ -47,7 +46,7 @@ class TaxoTree(object):
                     nodeList = node.children + nodeList
                 else:
                     nodeList += node.children
-            print "\n/!\ ERROR: Subtree rooted at: (",name,rank,") not found. It probably means that this node is not assigned in the samples you have selected."
+            print "\n/!\ ERROR: Subtree rooted at: (",name,rank,") not found."
             raise ValueError
         #
         #
@@ -158,7 +157,11 @@ class TaxoTree(object):
         for r in ranks:
             #Step 1:
             sameRankedNodes = []
-            name,rank = sLs.pop()
+            if sLs:
+                name,rank = sLs.pop()
+            else:
+                print "\n/!\ ERROR: No node of rank:",r,"."
+                break
             while sLs and (rank == r):
                 sameRankedNodes.append((name,rank,ident))
                 ident += 1
@@ -174,16 +177,18 @@ class TaxoTree(object):
             while sameRankedNodes:
                 nm,rk,idt = sameRankedNodes.pop()
                 #Step 3:
-                if hashFatherList[idt]:
+                if hashFatherList[idt] and nm and rk:
                     n,m = hashFatherList[idt]
                     #First element is the father
                     #Get children identifiers
                     children = allBrotherList[n][m][1:]
-                    childrenTrees = [ constructedTree[x] for x in children ]
+                    childrenTrees = [ constructedTree[x] for x in children if constructedTree[x] ]
                     constructedTree[idt] = TaxoTree(nm,rk,idt,pathsNodes[idt],childrenTrees,paths)
                 #Step 2:
-                else:
+                elif nm and rk:
                     constructedTree[idt] = TaxoTree(nm,rk,idt,pathsNodes[idt],[],paths)
+                #else:
+                    #print "\n/!\ Missing argument for:",nm,rk,"."
         constructedTree[-1].children = [ child for child in constructedTree[-1].children if child ]
         return constructedTree[-1]
     #
@@ -250,5 +255,11 @@ def printTree(tree):
         if tree:
             print "END #%d %s %s of %s %s ****"%(i,tree.name,tree.rank,name,rank)
     print "---"
-    return 0
+
+def test():
+    from parsingFasta import parseFasta
+    from misc import selectPath
+    _,paths,nodes,_ = parseFasta("GREENGENES_gg16S_unaligned_10022015")
+    print (("Methanosaeta","G") in nodes)
+    print selectPath(paths,"Methanosaeta","G",len(paths))
     

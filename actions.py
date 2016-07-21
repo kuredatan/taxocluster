@@ -154,9 +154,12 @@ def clusteringAct(dataArray):
     answer = raw_input("Do you want to save the results? Y/N\n")
     if (answer == "Y"):
         answer2 = raw_input("Do you want to compute the sets of common nodes for each cluster? [It can be considered relevant when the score of comparing clusters is at least over 0.5] Y/N\n")
-        commonList = extractCommonNodes(kClusters,dataArray)
-        data = "**** CLUSTERS FOR METADATUM " + metadatum + "WITH VALUES: " + str(valueSet)
-        i = 1
+        if (answer2 == "Y"):
+            commonList = extractCommonNodes(kClusters,dataArray)
+        elif not (answer2 == "N"):
+            print "\n/!\ You should answer Y or N, not:",answer2,"."
+        data = "**** CLUSTERS FOR METADATUM " + metadatum + " WITH VALUES: " + str(valueSet)
+        i = 0
         for cluster in kClusters:
             data += "\n\n-- Cluster #" + str(i)
             data += "\nSize: " + str(len(cluster))
@@ -164,12 +167,19 @@ def clusteringAct(dataArray):
                 data += "\nSet of common nodes: " + str(commonList[i])
             data += "\n" + str(cluster)
             i += 1
-        data += "\n\nCompare clusters score is:" + str(compareClustersScore)
-        data += "\n\nCompare centers score is:" + str(compareCentersScore)
-        data += "END OF FILE ****"
+        data += "\n\nCompare clusters score is: " + str(compareClusterScore)
+        data += "\n\nCompare centers score is: " + str(compareCentersScore)
+        data += "\n\nEND OF FILE ****"
         writeFile(data)
-        graph = convertClustersIntoGraph(kClusters,distanceDict,trimmedList,startSet)
-        graphNO(graph)
+        answer2 = raw_input("Do you want to compute the graph of the clusters? Y/N\n")
+        if (answer2 == "Y"):
+            print "\n/!\ Constructing the graph of the clusters..."
+            #@dataArray[3] = filenames
+            graph = convertClustersIntoGraph(kClusters,distanceDict,len(dataArray[3]))
+            graphNO(graph)
+            print "\n/!\ Done. The graph is in DOT format in \"files\" folder."
+        elif not (answer2 == "N"):
+            print "\n/!\ You should answer Y or N, not:",answer2,"."
     elif not (answer == "N"):
         print "/!\ You should answer by Y or N."
 #____________________________________________________________________________

@@ -1,5 +1,6 @@
 import numpy as np
 import sys as s
+import re
 
 #For distance matrices in folder /files
 #Stores the results in a dictionary
@@ -12,12 +13,10 @@ def importMatrixToDict(filename,dataArray):
         s.exit(0)
     lines = file_matrix.readlines()[3:-3]
     file_matrix.close()
-    n = len(lines)
-    m = len(lines[0].split(" | "))
-    ln = len(dataArray[3])
+    n = min(len(dataArray[3]),len(lines))
     values = []
-    for i in range(ln):
-        for j in range(i+1,ln):
+    for i in range(n):
+        for j in range(i,n):
             values.append((dataArray[3][i],dataArray[3][j]))
             values.append((dataArray[3][j],dataArray[3][i]))
     #Initializing the dictionary
@@ -34,7 +33,3 @@ def importMatrixToDict(filename,dataArray):
             j += 1
     return distDict
     
-def test():
-    from parsingInfo import parseInfo
-    m = importMatrixToDict("matrix1",[[],[],[],[sample[0] for sample in parseInfo("Info")[0]]])
-    print m.get(("AMLA-J0","AMLA-J0")),m.get(("BRAL-J45","BRAL-J45")),m.get(("DUGA-J0","DUGA-J0")),m.get(("GATE-J0","GATE-J0"))

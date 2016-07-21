@@ -47,10 +47,13 @@ def featuresCreate(filenames,fastaFileName):
     print "[ You may have to wait a few seconds... ]"
     try:
         #@idSequences is a dictionary of (key=identifier,value=((name,rank))
-        idSequences = parseFasta(fastaFileName)
+        #@paths is the list of paths from root to leaves
+        #@nodesListTree is the list of all nodes (internal nodes and leaves) in the tree
+        #We do not care for now of the OTU
+        idSequences,paths,nodesListTree,_ = parseFasta(fastaFileName)
     except IOError:
         print "\nERROR: Maybe the filename",fastaFileName,".fasta does not exist in \"meta\" folder\n"
         s.exit(0)
     matchingNodes = getMatchingNodes(allMatches,idSequences,filenames)
     print "/!\ Matching nodes list done."
-    return matchingNodes,idSequences
+    return matchingNodes,idSequences,paths,nodesListTree
