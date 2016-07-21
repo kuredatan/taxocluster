@@ -93,10 +93,14 @@ def clusteringAct(dataArray):
     valueSet,clusters1 = partitionSampleByMetadatumValue([metadatum],dataArray[1],dataArray[0])
     clusters = [cluster[0][0] for cluster in clusters1]
     #that is, k in K-means Algorithm
-    numberClass = len(valueSet)
+    numberClass = len(valueSet) + 1
+    print "/!\ Number of classes:",numberClass,"."
     startSet = [cluster for cluster in clusters]
     #Selects the starting samples of each cluster
     kClusters = [[cluster] for cluster in clusters]
+    if not (len(clusters) == numberClass):
+        print "\n/!\ ERROR: Different lengths: numberClass",numberClass,"clusters:",len(clusters),"."
+        raise ValueError
     trimmedList = trimList(dataArray[3],startSet)
     print "/!\ Clustering with the first distance..."
     #@distanceInClusters is a list of lists of (sample,sum of all distances from this sample to others samples in the same cluster)
@@ -108,15 +112,11 @@ def clusteringAct(dataArray):
     sampleSet = []
     for cluster in kClusters:
         sampleSet += cluster
-    startSet = [cluster[0] for cluster in kClusters]
+    startSet = [cluster for cluster in kClusters]
     kClusters = [[start] for start in startSet]
     trimmedList = trimList(sampleSet,startSet)
-    q = int(sanitize(raw_input("Choose parameter q between 0 and 1.\n")))
-    if q < 0 or q > 1:
-        print "\n/!\ ERROR: You should choose q between 0 and 1."
-        raise ValueError
     print "/!\ Clustering with the second distance..."
-    #@distanceMatrix is the distance dictionary (key=(sample1,sample2),value=distance between sample1 and sample2)
+    #@distanceDict is the distance dictionary (key=(sample1,sample2),value=distance between sample1 and sample2)
     #@dataArray[9] = distConsensusDict
     kClusters,meanSamples,distanceDict,_ = kMeans(trimmedList,numberClass,kClusters,startSet,dataArray[9],dataArray,q)
     print "-- End of second clustering --"

@@ -37,8 +37,8 @@ def updateMean(meanSample,cluster,distanceDict):
                 d = distanceDict.get((samplei,samplej))
                 if d:
                     distanceToThisSample += d
-                else:
-                    print samplei,samplej
+                #else:
+                    #print samplei,samplej
         distanceInCluster.append((samplei,distanceToThisSample))
         if distanceToThisSample < minDistance:
             minDistance = distanceToThisSample + 0
@@ -59,7 +59,7 @@ def kMeans(elementSet,k,kClusters,startSet,distanceDict,dataArray,q=0.5):
     #currAssignments[i] is the index of the cluster where totalElementSet[i] currently is
     currAssignments = [None]*(n-k)
     #distanceInClusters is a list of lists of (sample,sum of all distances from this samples to any other sample in the same cluster) pairs
-    distanceInClusters = []*k
+    distanceInClusters = [None]*k
     print "/!\ Starting clustering..."
     while not endIt:
         print "/!\ Next iteration",currAssignments,"."
@@ -68,15 +68,15 @@ def kMeans(elementSet,k,kClusters,startSet,distanceDict,dataArray,q=0.5):
             minCluster = None
             for clusterIndex in range(k):
                 distance = distanceDict.get((meanSamples[clusterIndex],totalElementSet[unassignedElement]))
-                if distance < minDist:
+                #In case of "infinite" distance for every cluster, the element would be assigned nowhere
+                if distance <= minDist:
                     minDist = distance
                     minCluster = clusterIndex
-            print "minCluster",minCluster,"k",k,"distance len",len(distanceInClusters),"."
             #Deletes the element from another cluster, if it exists
             currAssign = currAssignments[unassignedElement]
             #Meaning the element has already been assigned to another cluster
             if not (currAssign == minCluster) and currAssign:
-                kClusters[currAssign] = [x for x in kClusters[currAssign] if not (x == totalElementSet[i])]
+                kClusters[currAssign] = [x for x in kClusters[currAssign] if not (x == totalElementSet[unassignedElement])]
             currAssignments[unassignedElement] = minCluster
             kClusters[minCluster].append(totalElementSet[unassignedElement])
             meanSamples[minCluster],distanceInCluster = updateMean(meanSamples[minCluster],kClusters[minCluster],distanceDict)

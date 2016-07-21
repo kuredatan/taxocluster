@@ -37,13 +37,13 @@ def main():
         s.exit(0)
     print "-- End of parsing\n"
     result = sb.check_output("ls ./meta/match/testfiles",shell=True)
+    sb.call("ls ./meta/match > sampleidlist",shell=True)
+    sampleidlist = sb.check_output("sed 's/.match//g' sampleidlist | sed 's/testfiles//g' | sed '/^$/d'",shell=True).split()
+    sb.call("rm -f sampleidlist",shell=True)
     if not result:
         print "/!\ Pre-processing files for parsing..."
         process(sampleidlist)
         print "/!\ Pre-processing done."
-    sb.call("ls ./meta/match > sampleidlist",shell=True)
-    sampleidlist = sb.check_output("sed 's/.match//g' sampleidlist | sed 's/testfiles//g' | sed '/^$/d'",shell=True).split()
-    sb.call("rm -f sampleidlist",shell=True)
     print "/!\ Constructing the whole taxonomic tree..."
     print "[ You may have to wait a few seconds... ]"
     taxoTree = TaxoTree("Root").addNode(paths,nodesListTree)

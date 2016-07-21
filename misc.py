@@ -66,12 +66,15 @@ def cleanClusters(clusters,distanceInClusters):
     k = len(clusters)
     clustersCopy = [cluster for cluster in clusters]
     newClusters = []
-    for _ in range(k):
+    if not (len(clustersCopy) == k == len(distanceInClusters)):
+        print "\n/!\ ERROR: [misc/cleanClusters] Different lengths: clusters",len(clustersCopy),"k",k,"distance in clusters",len(distanceInClusters),"."
+        raise ValueError
+    while distanceInClusters and clustersCopy:
         cluster = clustersCopy.pop()
         n = len(cluster)
         #distanceList is a list of (sample,sum of distances) pairs
-        distanceList = sorted(distanceInClusters.pop(),key=lambda x: x[2])
-        distanceQuartile = distanceList[:3/4*n]
+        distanceList = sorted(distanceInClusters.pop(),key=lambda x: x[1])
+        distanceQuartile = distanceList[:int(3/4)*n]
         newCluster = []
         for pair in distanceQuartile:
                 newCluster.append(pair[0])
@@ -266,10 +269,10 @@ def setOperations(paths,nodesList,allNodes):
     for node in nodesList:
         path = selectPath(paths,node[0],node[1],n)
         if path:
-            pathsNodes.append(path)
+            #The LCA of x and x is x
+            pathsNodes.append(path + [node])
         #else:
             #print "/!\ Node",node,"not in taxonomic tree."
-    print pathsNodes
     commonPath = []
     n = minList([len(path) for path in pathsNodes])
     i = 0
@@ -278,7 +281,6 @@ def setOperations(paths,nodesList,allNodes):
         commonPath.append(pathsNodes[0][0])
         pathsNodes = [ path[1:] for path in pathsNodes ]
         i += 1
-    print commonPath
     return commonPath,pathsNodes
 
 #Computes LCA from the list paths of a TaxoTree
