@@ -50,7 +50,7 @@ def computeDistanceMatrix(dist,dataArray):
     if dist == distConsensus:
         q = float(raw_input("Choose the value of q to compute [q should be between 0 and 1].\n"))
         if q > 1 or q < 0:
-            print "\n/!\ ERROR: Wrong value of q [ shoudl be between 0 and 1 ]:",q,"."
+            print "\n/!\ ERROR: Wrong value of q [ should be between 0 and 1 ]:",q,"."
             raise ValueError
     n = len(dataArray[3])
     matrix = np.zeros((n,n))
@@ -58,6 +58,7 @@ def computeDistanceMatrix(dist,dataArray):
     for i in range(n):
         for j in range(i+1,n):
             #dataArray[3] = filenames
+            print dataArray[3][i],dataArray[3][j]
             distance = dist(dataArray[3][i],dataArray[3][j],dataArray,q)
             matrix[i][j] = distance
             matrix[j][i] = distance

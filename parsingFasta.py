@@ -9,7 +9,7 @@ integer = re.compile("[0-9]+")
 #___________________________________________
 
 #Default phylogeny is GreenGenes'
-def getNextRank(rank,ranks=["S","G","F","O","C","P","K","R"]):
+def getNextRank(rank,ranks):
     i = 0
     n = len(ranks)
     while i < n and not (rank == ranks[i]):
@@ -26,16 +26,19 @@ def getNextRank(rank,ranks=["S","G","F","O","C","P","K","R"]):
 #___________________________________________
 
 #From a string "rank__name" returns a pair (name,rank)
-def getBackBacteria(string):
+def getBackBacteria(string,i):
     ls = string.split("__")
     n = len(ls)
     if not len(ls) == 2:
-        return None,None
+        return None,None,i
     rank = ls[0].upper()
     #Phylogeny does not include the node itself
     if rank == "S":
-        return None,ls[1]
-    return (ls[1],rank),None
+        return None,ls[1],i
+    if not ls[1]:
+        name = "Unnamed_" + "%s"%i
+        return (name,rank),None,str(int(i)+1)
+    return (ls[1],rank),None,i
 
 #__________________________________________
 
@@ -61,9 +64,10 @@ def cleanName(dName):
 #Greengenes' phylogeny: ranks in order of increasing accuracy
 def parseFasta(filename,ranks=["S","G","F","O","C","P","K","R"]):
     start = time()
+    i = 0
     otuList = [ int(i) for i in sb.check_output("awk '/; otu_[0-9]*/' meta/" + filename + ".fasta | awk -F '; ' '{ print $NF }' | sed 's/otu_//g'",shell=True).split() if integer.match(i) ][:: -1]
-    sb.call("sed 'n;d' meta/" + filename + ".fasta | sed 's/\"//g' | sed \"s/\'//g\" | sed \'s/ str[.]//g\' | sed \'s/ sp[.]//g\' | sed 's/>//g' | sed 's/otu_[0-9]*//g'| sed 's/[A-Z][A-Z][A-Z]*[0-9]*//g' | sed 's/[A-Z][A-Z][A-Z]*[0-9]* [0-9]*//g' | sed 's/(.)//g' | sed 's/[-][0-9][0-9]*[A-Z]*//g' | sed 's/[A-Z][A-Z][A-Z]*[0-9]*[.][0-9]*//g' | sed 's/[0-9]*[.][0-9]*//g'  | sed 's/[;]//g' | sed 's/[A-Z] //g' > meta/newfile.fasta",shell=True)
-    idList = [ int(i) for i in sb.check_output("cut -d ' ' -f 1 meta/newfile.fasta",shell=True).split() if integer.match(i) ][::-1]
+    idList = [ int(i) for i in sb.check_output("awk '/>/' meta/" + filename + ".fasta | cut -d ' ' -f 1 | sed 's/>//g'",shell=True).split() if integer.match(i) ][::-1]
+    sb.call("awk '/>/' meta/" + filename + ".fasta | sed 's/\"//g' | sed \"s/\'//g\" | sed 's/otu_[0-9]*//g' | sed 's/^>[0-9]* [A-Z][A-Z]*[0-9]*[.][0-9]* //g' | sed 's/[;]//g' > meta/newfile.fasta",shell=True)
     idSequences = dict.fromkeys([])
     nodesDict = dict.fromkeys([("Root","R")])
     otuDict = dict.fromkeys([])
@@ -85,7 +89,7 @@ def parseFasta(filename,ranks=["S","G","F","O","C","P","K","R"]):
                 break
             currPhylogeny = []
             for x in ls[1].split(" "):
-                bact,nameBact = getBackBacteria(x)
+                bact,nameBact,i = getBackBacteria(x,i)
                 if bact:
                     currPhylogeny.append(bact)
                     nodesDict.setdefault(bact)

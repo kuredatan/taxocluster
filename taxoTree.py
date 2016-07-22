@@ -185,10 +185,8 @@ class TaxoTree(object):
                     childrenTrees = [ constructedTree[x] for x in children if constructedTree[x] ]
                     constructedTree[idt] = TaxoTree(nm,rk,idt,pathsNodes[idt],childrenTrees,paths)
                 #Step 2:
-                elif nm and rk:
+                else:
                     constructedTree[idt] = TaxoTree(nm,rk,idt,pathsNodes[idt],[],paths)
-                #else:
-                    #print "\n/!\ Missing argument for:",nm,rk,"."
         constructedTree[-1].children = [ child for child in constructedTree[-1].children if child ]
         return constructedTree[-1]
     #
@@ -256,10 +254,3 @@ def printTree(tree):
             print "END #%d %s %s of %s %s ****"%(i,tree.name,tree.rank,name,rank)
     print "---"
 
-def test():
-    from parsingFasta import parseFasta
-    from misc import selectPath
-    _,paths,nodes,_ = parseFasta("GREENGENES_gg16S_unaligned_10022015")
-    print (("Methanosaeta","G") in nodes)
-    print selectPath(paths,"Methanosaeta","G",len(paths))
-    
