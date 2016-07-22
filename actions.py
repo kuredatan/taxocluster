@@ -92,9 +92,10 @@ def clusteringAct(dataArray):
     metadatum = sanitize(raw_input("Select the metadatum among those above to cluster the set of samples. [e.g. " + dataArray[1][0] + "]\n")).split(";")[0]
     isInDatabase([metadatum],dataArray[1])
     valueSet,clusters1 = partitionSampleByMetadatumValue([metadatum],dataArray[1],dataArray[0])
+    print len(valueSet),len(clusters1)
     clusters = [cluster[0][0] for cluster in clusters1]
     #that is, k in K-means Algorithm
-    numberClass = len(valueSet) + 1
+    numberClass = len(valueSet)
     print "/!\ Number of classes:",numberClass,"."
     startSet = [cluster for cluster in clusters]
     #Selects the starting samples of each cluster
