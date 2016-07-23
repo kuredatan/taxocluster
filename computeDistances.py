@@ -22,6 +22,8 @@ def distConsensus(sample1,sample2,dataArray,q):
     nodes2 = dataArray[4].get(sample2)
     nodeLCA1 = taxoLCA(dataArray[7].paths,nodes1)
     nodeLCA2 = taxoLCA(dataArray[7].paths,nodes2)
+    print nodeLCA1,len(nodes1)
+    print nodeLCA2,len(nodes2)
     #@dataArray[7] = taxoTree
     #Looking for the subtree rooted at the LCA of the matched nodes
     #that is the "induced tree"

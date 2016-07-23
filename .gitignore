@@ -21,6 +21,8 @@ TODO.txt
 *.5
 *.5~
 *.sh~
+*.taxocluster
+*.taxocluster~
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
