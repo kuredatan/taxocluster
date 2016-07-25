@@ -91,15 +91,14 @@ def clusteringAct(dataArray):
     print dataArray[1]
     metadatum = sanitize(raw_input("Select the metadatum among those above to cluster the set of samples. [e.g. " + dataArray[1][0] + "]\n")).split(";")[0]
     isInDatabase([metadatum],dataArray[1])
-    valueSet,clusters1 = partitionSampleByMetadatumValue([metadatum],dataArray[1],dataArray[0])
-    print len(valueSet),len(clusters1)
-    clusters = [cluster[0][0] for cluster in clusters1]
+    valueSet,clusters1 = partitionSampleByMetadatumValue(metadatum,dataArray[1],dataArray[0])
+    clusters = [[sample[0] for sample in cluster] for cluster in clusters1]
     #that is, k in K-means Algorithm
     numberClass = len(valueSet)
     print "/!\ Number of classes:",numberClass,"."
-    startSet = [cluster for cluster in clusters]
+    startSet = [cluster[0] for cluster in clusters]
     #Selects the starting samples of each cluster
-    kClusters = [[cluster] for cluster in clusters]
+    kClusters = [[start] for start in startSet]
     if not (len(clusters) == numberClass):
         print "\n/!\ ERROR: Different lengths: numberClass",numberClass,"clusters:",len(clusters),"."
         raise ValueError
@@ -110,15 +109,14 @@ def clusteringAct(dataArray):
     kClusters,meanSamples,distanceDict,distanceInClusters = kMeans(trimmedList,numberClass,kClusters,startSet,dataArray[8],dataArray)
     print "-- End of first clustering --"
     #Deletes samples in cluster that are too far from the others
-    #kClusters = cleanClusters(kClusters,distanceInClusters)
-    #sampleSet = []
-    #for cluster in kClusters:
-    #    sampleSet += cluster
-    #print "sampleSet",sampleSet
-    #startSet = [cluster[0] for cluster in kClusters]
-    startSet = [meanSample for meanSample in meanSamples]
+    kClusters,untaken = cleanClusters(kClusters,distanceInClusters)
+    sampleSet = []
+    for cluster in kClusters:
+        sampleSet += cluster
+    startSet = [cluster[0] for cluster in kClusters]
+    #startSet = [meanSample for meanSample in meanSamples]
     #kClusters = [[start] for start in startSet]
-    trimmedList = trimList(dataArray[3],startSet) #sampleSet,startSet)
+    trimmedList = trimList(sampleSet,startSet)
     print "/!\ Clustering with the second distance..."
     #@distanceDict is the distance dictionary (key=(sample1,sample2),value=distance between sample1 and sample2)
     #@dataArray[9] = distConsensusDict
@@ -127,12 +125,14 @@ def clusteringAct(dataArray):
     print "Printing the",numberClass,"clusters:"
     i = 1
     #@kClusters contains the list of the k clusters. Each cluster is a list of sample IDs
+    print valueSet
+    print [cluster[0] for cluster in clusters]
     for cluster in kClusters:
-        print "\n-- Cluster #",i
+        print "\n-- Cluster #",i,"associated to",metadatum,"=",valueSet[i-1],":"
         print "Size:",len(cluster)
         print cluster
         i += 1
-    print "Score of the clustering (comprised between 0 and 1):"
+    print "\nScore of the clustering (comprised between 0 and 1):"
     print "The more it is close to 1, the more the clustering is relevant."
     #The clustering obtained with the K-Means method
     kClustersCopy = [cluster for cluster in kClusters]
@@ -146,12 +146,21 @@ def clusteringAct(dataArray):
     while kClustersCopy and clustersCopy:
         cl1 = kClustersCopy.pop()
         cl2 = clustersCopy.pop()
-        compareClusterScore += compareCluster(cl1,cl2)
-    compareClusterScore = compareClusterScore/numberClass
+        x = compareCluster(cl1,cl2)
+        if x:
+            compareClusterScore += compareCluster(cl1,cl2,untaken)
+        else:
+            compareClusterScore = None
+            break
+    if compareClusterScore:
+        compareClusterScore = compareClusterScore/numberClass
+        printClusterScore = compareClusterScore
+    else:
+        printClusterScore = "None"
     #Score by using second method of comparison
-    compareCentersScore = compareCenters(meanSamples,distanceDict,numberClass)
-    print "Compare clusters score is:",compareClusterScore,"."
-    print "Compare centers score is:",compareCentersScore,"."
+    #compareCentersScore = compareCenters(meanSamples,distanceDict,numberClass)
+    print "Compare clusters score is:",printClusterScore,"."
+    #print "Compare centers score is:",compareCentersScore,"."
     answer = raw_input("Do you want to save the results? Y/N\n")
     if (answer == "Y"):
         answer2 = raw_input("Do you want to compute the sets of common nodes for each cluster? [It can be considered relevant when the score of comparing clusters is at least over 0.5] Y/N\n")
@@ -162,14 +171,14 @@ def clusteringAct(dataArray):
         data = "**** CLUSTERS FOR METADATUM " + metadatum + " WITH VALUES: " + str(valueSet)
         i = 0
         for cluster in kClusters:
-            data += "\n\n-- Cluster #" + str(i)
+            data += "\n\n-- Cluster #" + str(i+1) + " associated to " + metadatum + " = " + str(valueSet(i)) 
             data += "\nSize: " + str(len(cluster))
             if (answer2 == "Y"):
                 data += "\nSet of common nodes: " + str(commonList[i])
             data += "\n" + str(cluster)
             i += 1
         data += "\n\nCompare clusters score is: " + str(compareClusterScore)
-        data += "\n\nCompare centers score is: " + str(compareCentersScore)
+        #data += "\n\nCompare centers score is: " + str(compareCentersScore)
         data += "\n\nEND OF FILE ****"
         writeFile(data)
         answer2 = raw_input("Do you want to compute the graph of the clusters? Y/N\n")

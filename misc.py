@@ -56,6 +56,7 @@ def cleanClusters(clusters,distanceInClusters):
     k = len(clusters)
     clustersCopy = [cluster for cluster in clusters]
     newClusters = []
+    untaken = []
     if not (len(clustersCopy) == k == len(distanceInClusters)):
         print "\n/!\ ERROR: [misc/cleanClusters] Different lengths: clusters",len(clustersCopy),"k",k,"distance in clusters",len(distanceInClusters),"."
         raise ValueError
@@ -64,12 +65,10 @@ def cleanClusters(clusters,distanceInClusters):
         n = len(cluster)
         #distanceList is a list of (sample,sum of distances) pairs
         distanceList = sorted(distanceInClusters.pop(),key=lambda x: x[1])
-        distanceQuartile = distanceList[:int(3/4)*n]
-        newCluster = []
-        for pair in distanceQuartile:
-                newCluster.append(pair[0])
+        newCluster = [ pair[0] for pair in distanceList[:int(3/4*n)+1] ]
+        untaken += [ pair[0] for pair in distanceList[int(3/4*n)+1:] ]
         newClusters.append(newCluster)
-    return newClusters
+    return newClusters,untaken
             
 def truncate(number, digitNumber):
     #Splitting the decimal and the integer parts of @number
@@ -294,12 +293,8 @@ def isInDatabase(parseList,dataList):
                 print "\n/!\ ERROR: '" + str(pl) + "' is not in the database beginning with: " + str(dataList[:min(n-1,3)]) + "."
             raise ValueError
     
-
 #Given a set of samples, gives the list of disjoint groups of samples according to the value of the metadatum, and the set of values of the metadatum
-#@metadatum is a list (of one element) of metadata.
 def partitionSampleByMetadatumValue(metadatum,infoList,samplesInfoList):
-    #One metadatum only!
-    metadatum = metadatum[0]
     #computes the number of column which matches the metadatum in infoList
     i = 0
     n = len(infoList)
@@ -322,7 +317,7 @@ def partitionSampleByMetadatumValue(metadatum,infoList,samplesInfoList):
     if len(sample) < i:
         print "\n/!\ ERROR: [BUG] [misc/partitionSampleByMetadatumValue] Different lengths",len(sample),"and",i,"(1)"
         raise ValueError
-    #selects a sample where the value of the metadatum is known
+    #Selects a sample where the value of the metadatum is known
     while not integer.match(sample[i]):
         sample = sampleSorted.pop()
         if len(sample) < i:
@@ -330,11 +325,10 @@ def partitionSampleByMetadatumValue(metadatum,infoList,samplesInfoList):
             raise ValueError
     #Initializing the set of values of the metadatum
     currValue = sample[i]
-    valueSet.append((metadatum,int(currValue)))
+    valueSet.append(int(currValue))
     #While it remains samples in the list
     while sampleSorted:
         valueSample = []
-        isEmpty = False
         #Filling the list of samples with similar values of the metadatum
         while sampleSorted and (sample[i] == currValue):
             valueSample.append(sample)
@@ -342,14 +336,16 @@ def partitionSampleByMetadatumValue(metadatum,infoList,samplesInfoList):
             #gets the next sample where the value of the metadatum is known
             while not integer.match(sample[i]) and sampleSorted:
                 sample = sampleSorted.pop()
-            #If sampleSorted is empty
-            if not sampleSorted:
-                isEmpty = True
+            if len(sample) < i:
+                print "\n/!\ ERROR: [BUG] [misc/partitionSampleByMetadatumValue] Different lengths",len(sample),"and",i,"(3)"
+                raise ValueError
         #appends the newly created list to the main list
         valueSampleMetadatum.append(valueSample)
         #Initializing next loop with the new different value of the metadatum
         currValue = sample[i]
-        if isEmpty:
-            #Adding this value to the set
-            valueSet.append((metadatum,int(currValue)))
+        #Adding this value to the set
+        valueSet.append(int(currValue))
+    #The previous procedure adds twice the last value
+    valueSet.pop()
     return valueSet,valueSampleMetadatum
+

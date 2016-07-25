@@ -4,10 +4,20 @@ from normalization import normalizeList
 
 #The more the coefficient returned is close to 1, the more the clusters are alike
 #Returns |common samples between the two clusters|/|samples of the two clusters|
-def compareCluster(cluster1,cluster2):
+def compareCluster(cluster1,cluster2,untaken):
     commonSamples = [sample for sample in cluster1 if (sample in cluster2)]
     cLength = len(commonSamples)
-    return cLength/(len(cluster1) + len(cluster2) - cLength)
+    cl1Length = 0
+    for c in cluster1:
+        if not c in untaken:
+            cl1Length += 1
+    cl2Length = 0
+    for c in cluster2:
+        if not c in untaken:
+            cl2Length += 1
+    if cLength == cl1Length == cl2Length:
+        return None
+    return cLength/(cl1Length + cl2Length - cLength)
 
 #compares the distance between the two centers of the corresponding clusters relatively to the distances between each pair of clusters
 #@distanceDict is a dictionary of (key=(sample1,sample2),value=distance between sample1 and sample2)
