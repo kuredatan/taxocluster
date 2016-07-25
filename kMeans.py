@@ -97,4 +97,11 @@ def kMeans(elementSet,k,kClusters,startSet,distanceDict,dataArray,meanSamples=No
     print "-- End of clustering."
     end = time()
     print "TIME:",(end-start)
-    return kClusters,meanSamples,distanceDict,distanceInClusters
+    trimmedkClusters = []
+    for cluster in kClusters:
+        newcluster = []
+        for x in cluster:
+            if not x in newcluster:
+                newcluster.append(x)
+        trimmedkClusters.append(newcluster)
+    return trimmedkClusters,meanSamples,distanceDict,distanceInClusters
