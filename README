@@ -46,6 +46,8 @@ Different sorts of distances for the clustering.
 
 **** dotModule.py ****
 Turns a graph (adjacency matrix) into a .DOT file, that can be seen using GraphViz.
+To convert the resulting .DOT file into .PNG, use the following command in the terminal:
+(LINUX) dot -Tpng [path/filename].dot > [path/filename].png
 
 **** extractNodes.py ****
 Computes the set of common nodes for each cluster.

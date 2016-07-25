@@ -48,7 +48,8 @@ def convertClustersIntoGraph(kClusters,distanceDict,n):
         m = len(cluster)
         for i1 in range(m):
             for i2 in range(i1+1,m):
-                graph[i1 + numCluster][i2 + numCluster] = (cluster[i1],cluster[i2],1,distanceDict.get((cluster[i1],cluster[i2])))
+                if (i1 + numCluster) < n and (i2 + numCluster) < n:
+                    graph[i1 + numCluster][i2 + numCluster] = (cluster[i1],cluster[i2],1,distanceDict.get((cluster[i1],cluster[i2])))
         numCluster += m
     return graph
 

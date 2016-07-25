@@ -84,13 +84,13 @@ def main():
                 qList = sorted(sb.check_output("ls ./meta | awk '/.dist/' | sed 's/matrix[1-2]//g' | sed 's/.dist//g'",shell=True).split())
                 print "List of pre-computed q:",qList
                 q = raw_input("Choose q among the ones above.\n")
-                if float(q) < 0 or float(q) > 1:
-                    print "\n/!\ ERROR: Wrong value of q [should be between 0 and 1, and be already computed]:",q,"."
+                if float(q) < 0 or float(q) > 1 or not (q in qList):
+                    print "\n/!\ ERROR: Wrong value of q [should be between 0 and 1, and be already computed]:",q,".\n"
                     continue
                 else:
+                    distMatchedDict = importMatrixToDict("matrix1",dataArray)
+                    distConsensusDict = importMatrixToDict("matrix2" + q,dataArray)
                     undone = False
-            distMatchedDict = importMatrixToDict("matrix1",dataArray)
-            distConsensusDict = importMatrixToDict("matrix2" + q,dataArray)
             dataArray.append(distMatchedDict)
             dataArray.append(distConsensusDict)
             print "/!\ Matrices imported."
