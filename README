@@ -44,14 +44,14 @@ Tools to quantify to which extent two clusters are alike.
 **** computeDistances.py ****
 Different sorts of distances for the clustering.
 
+**** dotModule.py ****
+Turns a graph (adjacency matrix) into a .DOT file, that can be seen using GraphViz.
+
 **** extractNodes.py ****
 Computes the set of common nodes for each cluster.
 
-**** dotModule.py ****
-Turns a graph (adjacency matrix) into DOT code (to visualize the graph with GraphViz).
-
 **** featuresVector.py ****
-Create features vector for each patient.
+Create list of matching nodes for each patient.
 
 **** /files ****
 Stores written files using writeOnFiles functions.
@@ -72,7 +72,7 @@ Contains raw material.
 Contains useful macros.
 
 **** normalization.py ****
-Normalizes values of a list.
+Normalizes (mean-centers) values of a list.
 
 **** parsingFasta.py ****
 Parses FASTA file stored at /meta.
@@ -82,6 +82,13 @@ Parses data table stored at /meta.
 
 **** parsingMatch.py ****
 Parses MATCH files stored at /meta/match.
+
+**** preformat.py ****
+Formats the .match files to parse them.
+Stores the resulting .test files at /meta/match/testfiles.
+
+**** script_format.sh & script_format_per_file.sh ****
+These files would not be modified. They are used by the preformat module.
 
 **** taxoTree.py ****
 Implements a modified version of taxonomic tree.

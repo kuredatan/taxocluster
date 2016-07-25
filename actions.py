@@ -169,7 +169,7 @@ def clusteringAct(dataArray):
         data = "**** CLUSTERS FOR METADATUM " + metadatum + " WITH VALUES: " + str(valueSet)
         i = 0
         for cluster in kClusters:
-            data += "\n\n-- Cluster #" + str(i+1) + " associated to " + metadatum + " = " + str(valueSet(i)) 
+            data += "\n\n-- Cluster #" + str(i+1) + " associated to " + metadatum + " = " + str(valueSet[i]) 
             data += "\nSize: " + str(len(cluster))
             if (answer2 == "Y"):
                 data += "\nSet of common nodes: " + str(commonList[i])
