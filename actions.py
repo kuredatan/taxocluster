@@ -108,14 +108,23 @@ def clusteringAct(dataArray):
     #@dataArray[8] = distMatchedDict
     kClusters,meanSamples,distanceDict,distanceInClusters = kMeans(trimmedList,numberClass,kClusters,startSet,dataArray[8],dataArray)
     print "-- End of first clustering --"
+    print kClusters
     #Deletes samples in cluster that are too far from the others
     kClusters,untaken = cleanClusters(kClusters,distanceInClusters)
+    startSet = [cluster[0] for cluster in clusters]
+    untaken2 = []
+    for x in untaken:
+        if not (x in startSet):
+            untaken2.append(x)
+    untaken = untaken2
     sampleSet = []
     for cluster in kClusters:
-        sampleSet += cluster
-    startSet = [cluster[0] for cluster in kClusters]
-    #startSet = [meanSample for meanSample in meanSamples]
-    #kClusters = [[start] for start in startSet]
+        for x in cluster:
+            if not (x in sampleSet):
+                sampleSet.append(x)
+    for x in startSet:
+        if not (x in sampleSet):
+            sampleSet.append(x)
     trimmedList = trimList(sampleSet,startSet)
     print "/!\ Clustering with the second distance..."
     #@distanceDict is the distance dictionary (key=(sample1,sample2),value=distance between sample1 and sample2)

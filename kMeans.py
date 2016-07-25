@@ -23,7 +23,7 @@ def shouldStop(kClusters,previouskClusters,k):
     return endIt
 
 #The mean sample of a cluster is the one that minimizes the distance to the other samples
-def updateMean(meanSample,cluster,distanceDict):
+def updateMean(cluster,distanceDict):
     distanceInCluster = []
     minDistance = inf
     currMean = None
@@ -80,28 +80,22 @@ def kMeans(elementSet,k,kClusters,startSet,distanceDict,dataArray,meanSamples=No
                 for x in kClusters[currAssign]:
                     if not (x == totalElementSet[unassignedElement]) and not (x in newCluster):
                         newCluster.append(x)
+                kClusters[currAssign] = newCluster
+                meanSamples[currAssign],distanceInCluster = updateMean(kClusters[currAssign],distanceDict)
+                distanceInClusters[currAssign] = distanceInCluster
+            #If the element is unassigned
             if not (currAssign == minCluster):
                 currAssignments[unassignedElement] = minCluster
-                kClusters[minCluster].append(totalElementSet[unassignedElement])
-                meanSamples[minCluster],distanceInCluster = updateMean(meanSamples[minCluster],kClusters[minCluster],distanceDict)
+                newCluster = []
+                for x in kClusters[minCluster]:
+                    if not (x in newCluster) and not (x == totalElementSet[unassignedElement]):
+                        newCluster.append(x)
+                kClusters[minCluster] = newCluster + [totalElementSet[unassignedElement]]
+                meanSamples[minCluster],distanceInCluster = updateMean(kClusters[minCluster],distanceDict)
                 distanceInClusters[minCluster] = distanceInCluster
-        #checkSum = 0
-        #for cluster in kClusters:
-            #for _ in cluster:
-                #checkSum += 1
-        #if not (checkSum == n):
-            #print "\n/!\ ERROR: Clusters are not disjoint:",checkSum,",",n,":",kClusters,"."
-            #raise ValueError
         endIt = shouldStop(kClusters,previouskClusters,k)
         previouskClusters = deepcopy(kClusters)
     print "-- End of clustering."
     end = time()
     print "TIME:",(end-start)
-    trimmedkClusters = []
-    for cluster in kClusters:
-        newcluster = []
-        for x in cluster:
-            if not x in newcluster:
-                newcluster.append(x)
-        trimmedkClusters.append(newcluster)
-    return trimmedkClusters,meanSamples,distanceDict,distanceInClusters
+    return kClusters,meanSamples,distanceDict,distanceInClusters
