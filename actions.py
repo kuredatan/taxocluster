@@ -125,8 +125,6 @@ def clusteringAct(dataArray):
     print "Printing the",numberClass,"clusters:"
     i = 1
     #@kClusters contains the list of the k clusters. Each cluster is a list of sample IDs
-    print valueSet
-    print [cluster[0] for cluster in clusters]
     for cluster in kClusters:
         print "\n-- Cluster #",i,"associated to",metadatum,"=",valueSet[i-1],":"
         print "Size:",len(cluster)
@@ -146,9 +144,9 @@ def clusteringAct(dataArray):
     while kClustersCopy and clustersCopy:
         cl1 = kClustersCopy.pop()
         cl2 = clustersCopy.pop()
-        x = compareCluster(cl1,cl2)
+        x = compareCluster(cl1,cl2,untaken)
         if x:
-            compareClusterScore += compareCluster(cl1,cl2,untaken)
+            compareClusterScore += x
         else:
             compareClusterScore = None
             break
