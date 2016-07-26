@@ -108,15 +108,23 @@ def clusteringAct(dataArray):
     #@dataArray[8] = distMatchedDict
     kClusters,meanSamples,distanceDict,distanceInClusters = kMeans(trimmedList,numberClass,kClusters,startSet,dataArray[8],dataArray)
     print "-- End of first clustering --"
-    print kClusters
+    number = 0
+    for cluster in kClusters:
+        for _ in cluster:
+            number += 1
+    if not (number == len(dataArray[3])):
+        print "\n/!\ ERROR: A bug occurred during the clustering:",number,"=/=",len(dataArray[3]),"."
+        raise ValueError
     #Deletes samples in cluster that are too far from the others
     kClusters,untaken = cleanClusters(kClusters,distanceInClusters)
     startSet = [cluster[0] for cluster in clusters]
+    #Remove from untaken the starting samples
     untaken2 = []
     for x in untaken:
         if not (x in startSet):
             untaken2.append(x)
     untaken = untaken2
+    #Remove the samples in untaken from the total set of samples
     sampleSet = []
     for cluster in kClusters:
         for x in cluster:
@@ -130,7 +138,14 @@ def clusteringAct(dataArray):
     #@distanceDict is the distance dictionary (key=(sample1,sample2),value=distance between sample1 and sample2)
     #@dataArray[9] = distConsensusDict
     kClusters,meanSamples,distanceDict,_ = kMeans(trimmedList,numberClass,kClusters,startSet,dataArray[9],dataArray,meanSamples)
-    print "-- End of second clustering --"
+    print "-- End of second clustering --" 
+    number = 0
+    for cluster in kClusters:
+        for _ in cluster:
+            number += 1
+    if not (number <= len(dataArray[3])):
+        print "\n/!\ ERROR: An error occurred during the clustering:",number,">",len(dataArray[3]),"."
+        raise ValueError
     print "Printing the",numberClass,"clusters:"
     i = 1
     #@kClusters contains the list of the k clusters. Each cluster is a list of sample IDs
