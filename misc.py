@@ -319,14 +319,15 @@ def partitionSampleByMetadatumValue(metadatum,infoList,samplesInfoList):
         print "\n/!\ ERROR: [BUG] [misc/partitionSampleByMetadatumValue] Different lengths",len(sample),"and",i,"(1)"
         raise ValueError
     #Selects a sample where the value of the metadatum is known
-    while not integer.match(sample[i]):
+    while not integer.match(sample[i]) and sampleSorted:
         sample = sampleSorted.pop()
         if len(sample) < i:
             print "\n/!\ ERROR: [BUG] [misc/partitionSampleByMetadatumValue] Different lengths",len(sample),"and",i,"(2)"
             raise ValueError
     #Initializing the set of values of the metadatum
     currValue = sample[i]
-    valueSet.append(int(currValue))
+    if integer.match(currValue):
+        valueSet.append(int(currValue))
     #While it remains samples in the list
     while sampleSorted:
         valueSample = []
@@ -345,8 +346,13 @@ def partitionSampleByMetadatumValue(metadatum,infoList,samplesInfoList):
         #Initializing next loop with the new different value of the metadatum
         currValue = sample[i]
         #Adding this value to the set
-        valueSet.append(int(currValue))
+        if integer.match(currValue):
+            valueSet.append(int(currValue))
     #The previous procedure adds twice the last value
     valueSet.pop()
+    #no integer values
+    if not valueSet:
+        print "\n/!\ ERROR: No integer values to cluster with."
+        raise ValueError
     return valueSet,valueSampleMetadatum
 

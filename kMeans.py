@@ -32,7 +32,7 @@ def updateMean(cluster,distanceDict):
         raise ValueError
     for samplei in cluster:
         distanceToThisSample = 0
-        for samplej in cluster:
+        for samplej in set(cluster):
             if not (samplej == samplei):
                 d = distanceDict.get((samplei,samplej))
                 if d:
@@ -45,14 +45,25 @@ def updateMean(cluster,distanceDict):
             currMean = samplei
     return currMean,distanceInCluster
 
+def getClusters(currAssignments,k,totalElementSet):
+    kClusters = [None] * k
+    n = len(totalElementSet)
+    for i in range(n):
+        if not kClusters[currAssignments[i]]:
+            kClusters[currAssignments[i]] = [totalElementSet[i]]
+        else:
+            kClusters[currAssignments[i]].append(totalElementSet[i])
+    return kClusters
+
 #@startSet solves the problem of initialization in K-Means Algorithm
 def kMeans(elementSet,k,kClusters,startSet,distanceDict,dataArray,meanSamples=None):
     start = time()
     totalElementSet = elementSet + startSet
     n = len(totalElementSet)
-    if not (n <= len(dataArray[3])):
+    if (n > len(dataArray[3])):
         print "\n/!\ ERROR: Different lengths of set of samples",n,len(dataArray[3]),"."
         raise ValueError
+    #Initialization of the clusters and the means
     meanSamples = meanSamples or [x for x in startSet]
     endIt = False
     previouskClusters = deepcopy(kClusters)
@@ -68,7 +79,7 @@ def kMeans(elementSet,k,kClusters,startSet,distanceDict,dataArray,meanSamples=No
             minCluster = None
             for clusterIndex in range(k):
                 distance = distanceDict.get((meanSamples[clusterIndex],totalElementSet[unassignedElement]))
-                #In case of "infinite" distance for every cluster, the element would be assigned nowhere if the condition were distance < minDist
+                #In case of "infinite" distance for every cluster, the element would be assigned nowhere if the condition was distance < minDist
                 if distance <= minDist:
                     minDist = distance
                     minCluster = clusterIndex
@@ -83,19 +94,23 @@ def kMeans(elementSet,k,kClusters,startSet,distanceDict,dataArray,meanSamples=No
                 kClusters[currAssign] = newCluster
                 meanSamples[currAssign],distanceInCluster = updateMean(kClusters[currAssign],distanceDict)
                 distanceInClusters[currAssign] = distanceInCluster
-            #If the element is unassigned
-            if not (currAssign == minCluster):
+            #If the element is unassigned (minCluster =/= None and currAssign == None => currAssign =/= minCluster)
+            elif not (currAssign == minCluster):
                 currAssignments[unassignedElement] = minCluster
                 newCluster = []
                 for x in kClusters[minCluster]:
                     if not (x in newCluster) and not (x == totalElementSet[unassignedElement]):
                         newCluster.append(x)
+                    elif (x == totalElementSet[unassignedElement]):
+                        print "/!\ ERROR:",x,"is in cluster #",currAssign," whereas it should not be assigned to any cluster."
                 kClusters[minCluster] = newCluster + [totalElementSet[unassignedElement]]
                 meanSamples[minCluster],distanceInCluster = updateMean(kClusters[minCluster],distanceDict)
                 distanceInClusters[minCluster] = distanceInCluster
+            #else currAssign == minCluster, nothing should be done
         endIt = shouldStop(kClusters,previouskClusters,k)
         previouskClusters = deepcopy(kClusters)
     print "-- End of clustering."
     end = time()
     print "TIME:",(end-start)
+    kClusters = getClusters(currAssignments,k,totalElementSet)
     return kClusters,meanSamples,distanceDict,distanceInClusters

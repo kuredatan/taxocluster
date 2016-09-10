@@ -1,4 +1,5 @@
 import numpy as np
+import subprocess as sb
 
 def writeText(filename,data):
     try:
@@ -20,6 +21,7 @@ def writeDot(filename,data):
         fo = open("files/" + filename + ".dot","w")
         fo.write(data)
         fo.close()
+        sb.call("dot -Tpng files/" + filename + ".dot > files/" + filename + ".png",shell=True)
     except IOError:
         print "\n/!\ ERROR: Could not open the file. Please try another name."
         raise ValueError

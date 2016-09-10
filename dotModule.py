@@ -8,16 +8,26 @@ import numpy as np
 #and delta = 1 if there is an edge between i and j, otherwise 0.
 #All these functions write a DOT code in file
 
+def sanitizeDot(name):
+    newName = ""
+    for letter in name:
+        if not letter == "-":
+            newName += letter
+    return newName
+
 #For non-oriented graphs
 def graphNO(graph):
+    seen = dict.fromkeys([])
     data = "graph g { \n"
     n,m = np.shape(graph)
     for i in range(n):
         for j in range(i+1,m):
-            #namei,namej,delta,distance = graph[i][j]
             if graph[i][j]:
-            #if delta:
-                data += "%d -- %d; \n"%(i,j)
-                #data += "%s -- %s [label=%s]; \n"%(namei,namej,str(distance))
+                namei,namej,delta,distance = graph[i][j]
+                if delta and not seen.get((namei,namej)) :
+                    data += "%s -- %s [label=%s]; \n"%(sanitizeDot(namei),sanitizeDot(namej),str(distance))
+                    seen.setdefault((namei,namej),1)
+                    seen.setdefault((namej,namej),1)
     data += " } \n"
     writeFile(data,"","dot")
+    
