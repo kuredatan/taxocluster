@@ -108,37 +108,37 @@ def clusteringAct(dataArray):
     #@dataArray[8] = distMatchedDict
     kClusters,meanSamples,distanceDict,distanceInClusters = kMeans(trimmedList,numberClass,kClusters,startSet,dataArray[8],dataArray)
     print "-- End of first clustering --"
-    #number = 0
-    #for cluster in kClusters:
-    #    for _ in cluster:
-    #        number += 1
-    #if not (number == len(dataArray[3])):
-    #    print "\n/!\ ERROR: A bug occurred during the clustering:",number,"=/=",len(dataArray[3]),"."
-    #    raise ValueError
+    number = 0
+    for cluster in kClusters:
+        for _ in cluster:
+            number += 1
+    if not (number == len(dataArray[3])):
+        print "\n/!\ ERROR: A bug occurred during the clustering:",number,"=/=",len(dataArray[3]),"."
+        raise ValueError
     #Deletes samples in cluster that are too far from the others
-    #kClusters,untaken = cleanClusters(kClusters,distanceInClusters)
-    #startSet = [cluster[0] for cluster in clusters]
+    kClusters,untaken = cleanClusters(kClusters,distanceInClusters)
+    startSet = [cluster[0] for cluster in clusters]
     #Remove from untaken the starting samples
-    #untaken2 = []
-    #for x in untaken:
-    #    if not (x in startSet):
-    #        untaken2.append(x)
-    #untaken = untaken2
+    untaken2 = []
+    for x in untaken:
+        if not (x in startSet):
+            untaken2.append(x)
+    untaken = untaken2
     #Remove the samples in untaken from the total set of samples
-    #sampleSet = []
-    #for cluster in kClusters:
-    #    for x in cluster:
-    #        if not (x in sampleSet):
-    #            sampleSet.append(x)
-    #for x in startSet:
-    #    if not (x in sampleSet):
-    #        sampleSet.append(x)
-    #trimmedList = trimList(sampleSet,startSet)
-    #print "/!\ Clustering with the second distance..."
+    sampleSet = []
+    for cluster in kClusters:
+        for x in cluster:
+            if not (x in sampleSet):
+                sampleSet.append(x)
+    for x in startSet:
+        if not (x in sampleSet):
+            sampleSet.append(x)
+    trimmedList = trimList(sampleSet,startSet)
+    print "/!\ Clustering with the second distance..."
     #@distanceDict is the distance dictionary (key=(sample1,sample2),value=distance between sample1 and sample2)
     #@dataArray[9] = distConsensusDict
-    #kClusters,meanSamples,distanceDict,_ = kMeans(trimmedList,numberClass,kClusters,startSet,dataArray[9],dataArray)#,meanSamples)
-    #print "-- End of second clustering --" 
+    kClusters,meanSamples,distanceDict,_ = kMeans(trimmedList,numberClass,kClusters,startSet,dataArray[9],dataArray)#,meanSamples)
+    print "-- End of second clustering --" 
     number = 0
     for cluster in kClusters:
         for _ in cluster:
@@ -169,8 +169,7 @@ def clusteringAct(dataArray):
         cl1 = kClustersCopy.pop()
         cl2 = clustersCopy.pop()
         #clusters are non-empty
-        x = len(set(cl1) & set(cl2))/len(set(cl1) | set(cl2))
-        #x = compareCluster(cl1,cl2,untaken)
+        x = compareCluster(cl1,cl2,untaken)
         if x:
             compareClusterScore += x
         else:
